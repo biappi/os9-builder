@@ -1,0 +1,31 @@
+Disk driver:
+  ✔ RBF CompactFlash driver @high @done (22-08-08 00:22)
+    ☐ support multi-sector read/write operations @medium
+
+Realtime Clock (DS1302):
+  ☐ nvram / flag bits @low
+    31B of SRAM
+    ☐ en/disable ROMBUG bit
+    ☐ boot source bit(s)
+    ☐ nvram access command/module? RBF driver?
+    ☐ bootloader support? reconfig-like thing?
+
+BUGS:
+  ☐ enabling explicit write-through caching for DRAM leads to mshell (from bootfile) crashing
+    weird
+
+ROMS:
+  ☐ chain-loadable miniature variant for calling from other ROMs
+    needs more friendly load address
+    aim to integrate with 'standard' CB030 ROM, or serial upload?
+
+Hacks:
+  ☐ compress the ROM payload so that more stuff can fit @low
+    Use LZSA2 (https://github.com/tattlemuss/lz4-m68k)
+     or BMOW FC8 algorithm (https://www.bigmessowires.com/2016/05/06/fc8-faster-68k-decompression/)
+     or LZ4 (https://github.com/tattlemuss/lz4-m68k)
+     or XZ Embedded
+     ✔ compile compressor for Windows @done (22-08-01 19:45)
+
+Tidyup:
+

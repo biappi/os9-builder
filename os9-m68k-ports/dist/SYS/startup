@@ -1,0 +1,19 @@
+set -nx -nt
+* set execution directory
+chx /dd/CMDS
+
+* enable disk cache
+*diskcache -e -t=1024k /dd
+
+* load additional modules
+if (exist("/dd/SYS/loadfile"))
+ load -z=/dd/SYS/loadfile
+endif
+
+* start login service
+* tsmon -dp /t1 <>>>/nil &
+
+* display login banner / message of the day
+if (exist("/dd/SYS/motd"))
+ list /dd/SYS/motd
+endif
