@@ -78,6 +78,7 @@ CF_CMD              equ $1d
  ifndef CF_DATA
     fail Must select a register layout
  endc
+ endc
 
 CF_ERROR_ABORT          equ $04
 CF_ERROR_ID_NOT_FOUND   equ $10
