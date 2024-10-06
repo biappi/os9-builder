@@ -27,7 +27,7 @@ VBRBase     equ 0                       * base address of vectors
 *
 _DUARTBase  equ $fffff000               * base address of the 68681
 _DUARTLevel equ 3                       * level 3
-_DUARTVect  equ 80                      * ... vectored
+_DUARTVect  equ 27                      * ... vectored
 _PortABase  equ _DUARTBase              * port A registers
 _PortBBase  equ _DUARTBase + $10        * port B registers
 
