@@ -1,5 +1,0 @@
-apps/bin
-apps/src/test
-dist/archives
-.DS_Store
-*.r
