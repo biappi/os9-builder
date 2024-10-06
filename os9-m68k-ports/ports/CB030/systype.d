@@ -217,13 +217,13 @@ DBGIn       equ _DUARTBase+$1a          * debug input bits
 DBGInBug    equ 4                       * do not enter debugger if 1
 DBGSet      equ _DUARTBase+$1c          * set debug LED bits
 DBGClr      equ _DUARTBase+$1e          * clear debug LED bits
-DBG_9       equ $de                     * digit encodings
-DBG_8       equ $fe
-DBG_7       equ $0e
-DBG_6       equ $fa
-DBG_5       equ $da
-DBG_4       equ $cc
-DBG_3       equ $9e
-DBG_2       equ $b6
-DBG_1       equ $0c
-DBG_0       equ $7e
+DBG_9       equ $4f                     * digit encodings
+DBG_8       equ $7f
+DBG_7       equ $07
+DBG_6       equ $7d
+DBG_5       equ $6d
+DBG_4       equ $66
+DBG_3       equ $4f
+DBG_2       equ $5b
+DBG_1       equ $06
+DBG_0       equ $3f
