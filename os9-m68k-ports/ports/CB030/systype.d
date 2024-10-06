@@ -117,11 +117,14 @@ ConsolNm:
 
 * clock module name
 ClockNm:
-    dc.b    "tkcb030",0
+    dc.b   0
+* "tkcb030",0
 
 * ordered list of extensions
 Extens:
-    dc.b    "OS9P2 syscache ssm fpu OS9P3",0
+*    dc.b    "OS9P2 syscache fpu OS9P3",0
+*    dc.b    "OS9P2 syscache ssm fpu OS9P3",0
+    dc.b "fpu",0
 
 * configured memory (search) list
     align
