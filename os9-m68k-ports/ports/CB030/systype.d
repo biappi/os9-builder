@@ -84,6 +84,10 @@ NoDataDis set 1
 * lots of RAM, so have lots of interrupt stack
 StackSz set $1000
 
+* Compat set NoClock
+Compat  set (1<<5)  TEST: don't start clock on cold start
+Config set (1<<3) TEST: disable system-state time-slicing
+
 CONFIG macro
 
 * system / board name
