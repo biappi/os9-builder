@@ -187,13 +187,9 @@ Read16 macro
     ifne \#-1
     fail Read16 requires 1 argument
     endc
- ifeq CFIDE_DATA_WIDTH-8
     move.b      CF_DATA(\1),d0              * LSByte
     rol.w       #8,d0
     move.b      CF_DATA(\1),d0              * MSByte
- else
-    move.w      CF_DATA(\1),d0
- endc
  ifne CFIDE_SWAP_BYTES
     rol.w       #8,d0
  endc
@@ -226,11 +222,9 @@ ChkInit macro
     bne         a\@
     WaitStatus  \1,RDY,E$NotRdy             * wait for drive to be ready
     move.b      #CF_LBA_3_LBA_EN,CF_LBA_3(\1) * enable LBA mode
- ifeq CFIDE_DATA_WIDTH-8
     move.b      #CF_FEAT_8BIT,CF_FEAT(\1)   * select 8-bit mode feature
     move.b      #CF_CMD_SET_FEAT,CF_CMD(\1) * ... and set
     WaitStatus  \1,RDY,E$NotRdy             * wait for drive to be ready
- endc
     st.b        V_Init(a0)                  * set init-done flag
 *    lea         _init(pc),a0
 *    bsr         OutStr
@@ -383,19 +377,10 @@ read_do_read
 
 * copy data from drive to path buffer
     move.l      a5,a0
- ifeq CFIDE_DATA_WIDTH-8
     move.w      #SECTOR_SIZE-1,d1           * 8-bit copy loop
 read_pio_loop
     move.b      CF_DATA(a3),(a0)+
     dbra        d1,read_pio_loop
- else
-    move.w      #(SECTOR_SIZE/2)-1,d1       * 16-bit copy loop
-read_pio_loop
-    move.w      CF_DATA(a3),d0
-    ror.w       #8,d0
-    move.w      d0,(a0)+
-    dbra        d1,read_pio_loop
- endc
 
 * if LBN != 0, we are done here
     tst.l       d2                          * LBN zero?
@@ -505,19 +490,11 @@ write_do_write
 
 * copy data from path buffer to drive
     move.l      a5,a0
- ifeq CFIDE_DATA_WIDTH-8
+
     move.w      #SECTOR_SIZE-1,d1           * 8-bit copy loop
 write_pio_loop
     move.b      (a0)+,CF_DATA(a3)
     dbra        d1,write_pio_loop
- else
-    move.w      #(SECTOR_SIZE/2)-1,d1       * 16-bit copy loop
-write_pio_loop
-    move.w      (a0)+,d0
-    ror.w       #8,d0
-    move.w      d0,CF_DATA(a3)
-    dbra        d1,write_pio_loop
- endc
 
 * wait for write to complete
     WaitStatus  a3,RDY,E$NotRdy             * BSY remains set until write complete

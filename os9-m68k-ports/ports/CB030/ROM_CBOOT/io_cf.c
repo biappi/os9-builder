@@ -19,11 +19,7 @@
 #ifndef CF_BASE
 #error Must define CF_BASE in <systype.h>
 #endif
-#ifndef CF_WIDTH
-#error Must define CF_WIDTH in <systype.h>
-#endif
 
-#if CF_WIDTH == 8
 #define REG8(_x)  (*(volatile unsigned char *)(CF_BASE+_x))
 #define CF_DATA             REG8(0x00)
 
@@ -49,9 +45,6 @@
 #define CF_IDENTIFY_ATA             (1U<<15)    /* if bit is zero, ATA device */
 #define CF_IDENTIFY_MAGIC           0x848a      /* if equal, CF device */
 #define CF_CMD_SET_FEAT         0xef
-#else
-#error CF_WIDTH != 8 not supported yet
-#endif
 
 /*
  * Wait for the drive to become not-busy, and ready for a command, or time out.
@@ -92,7 +85,6 @@ cf_drive_data_ready(void)
 static u_int16
 cf_read16(void)
 {
-#if CF_WIDTH == 8
     union {
         u_int8  b[2];
         u_int16 w;
@@ -100,10 +92,8 @@ cf_read16(void)
     x.b[1] = CF_DATA;
     x.b[0] = CF_DATA;
     return x.w;
-#endif
 }
 
-#if CF_WIDTH == 8
 static void
 cf_read_sector(u_int8 *buf)
 {
@@ -113,7 +103,6 @@ cf_read_sector(u_int8 *buf)
         *buf++ = CF_DATA;
     }
 }
-#endif
 
 static error_code
 cf_iniz(void)
@@ -125,7 +114,6 @@ cf_iniz(void)
     /* enable LBA mode */
     CF_LBA_3 = CF_LBA_3_LBA_EN;
 
-#if CF_WIDTH == 8
     /* enable 8-bit mode */
     CF_FEAT = CF_FEAT_8BIT;
     CF_CMD = CF_CMD_SET_FEAT;
@@ -136,7 +124,6 @@ cf_iniz(void)
         outstr("CF: error setting 8-bit mode\n");
         return E_BTYP;
     }
-#endif
 
     /* identify device & verify compatibility */
     CF_CMD = CF_CMD_IDENTIFY;
