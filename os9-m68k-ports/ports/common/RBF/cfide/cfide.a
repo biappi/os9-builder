@@ -28,8 +28,8 @@ Att_Revs        set ((ReEnt+SupStat)<<8)+0
 *
 * configuration
 *
-*DEBUG_PRINT_ARGS    equ 1
-*DEBUG_PRINT_DATA    equ 1
+DEBUG_PRINT_ARGS    equ 1
+DEBUG_PRINT_DATA    equ 1
 
 *
 * constants
@@ -381,6 +381,11 @@ read_do_read
 read_pio_loop
     move.b      CF_DATA(a3),(a0)+
     dbra        d1,read_pio_loop
+
+  ifdef DEBUG_PRINT_DATA
+    move.l      a2,a0
+    bsr         OutSector
+  endc
 
 * if LBN != 0, we are done here
     tst.l       d2                          * LBN zero?
