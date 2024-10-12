@@ -376,7 +376,7 @@ read_do_read
     WaitStatus  a3,DRQ,E$Read               * wait for completion
 
 * copy data from drive to path buffer
-    move.l      a5,a0
+    move.l      a2,a0
     move.w      #SECTOR_SIZE-1,d1           * 8-bit copy loop
 read_pio_loop
     move.b      CF_DATA(a3),(a0)+
