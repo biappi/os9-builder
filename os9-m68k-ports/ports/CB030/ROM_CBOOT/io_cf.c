@@ -60,7 +60,7 @@ cf_drive_ready(void)
             return 1;
         }
     }
-    outstr("CF: RDY/BSY timeout\n");
+    outstr("CF: drive ready RDY/BSY timeout\n");
     return 0;
 }
 
@@ -78,7 +78,7 @@ cf_drive_data_ready(void)
             return 1;
         }
     }
-    outstr("CF: DRQ/BSY timeout\n");
+    outstr("CF: data ready DRQ/BSY timeout\n");
     return 0;
 }
 
