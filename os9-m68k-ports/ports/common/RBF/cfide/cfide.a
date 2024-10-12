@@ -397,6 +397,7 @@ read_cache_lbn0
     move.l      PD_DTB(a1),a0               * get drive table pointer (destination)
 *    st.b        V_ZeroRd(a0)                * set cache-valid flag
     move.w      #DD_SIZ-1,d1                * drive data size
+
 read_lbn0_to_dtb_loop
     move.b      (a5,d1.w),(a0,d1.w)         * copy LBN 0 header to drive table
     dbra        d1,read_lbn0_to_dtb_loop    * ... preserving a0,a5
@@ -404,6 +405,7 @@ read_lbn0_to_dtb_loop
 * copy LBN 0 from path buffer to cache
     move.l      V_ScZero(a0),a0             * get LBN 0 cache buffer (destination)
     move.w      #(SECTOR_SIZE/4)-1,d1       * sector words
+
 read_lbn0_to_cache_loop
     move.l      (a5)+,(a0)+                 * copy path buffer to LBN 0 cache
     dbra        d1,read_lbn0_to_cache_loop
@@ -413,10 +415,15 @@ read_lbn0_to_cache_loop
 read_from_lbn0_cache
     move.l      V_ScZero(a0),a0             * get LBN 0 buffer (source)
     move.w      #(SECTOR_SIZE/4)-1,d1       * copy size
+
 read_from_cache_loop
     move.l      (a0,d1.w),(a5,d1.w)         * copy word
     dbra        d1,read_from_cache_loop
     Success
+
+
+
+
 
 ** CF_Write
 *
