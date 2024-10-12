@@ -20,10 +20,21 @@ $(MAME_ROMIMAGE):
 	mkdir -p $(MAME_ROMS)
 	cp $(BUILT_ROMIMAGE) $(MAME_ROMIMAGE)
 
+.PHONY: romimage
+romimage: $(BUILT_ROMIMAGE)
+	cd $(CB030); ../make.sh
+	mkdir -p $(MAME_ROMS)
+	cp $(BUILT_ROMIMAGE) $(MAME_ROMIMAGE)
+
 .PHONY: mame
 mame: $(MAME_ROMIMAGE)
 	cd mame; make $(MAME_ALL_OPTS)
 
 .PHONY: run
 run: $(MAME_ROMIMAGE)
-	cd mame; ./fake68 fake68 -window -debug $(DEBUGGER)
+	cd mame; ./fake68 fake68 -window -debug $(DEBUGGER) -harddisk cfcard.hd
+
+.PHONY: make-cfcard
+make-cfcard:
+	dd if=/dev/zero of=mame/cfcard.hd bs=1M count=5
+
