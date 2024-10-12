@@ -107,6 +107,8 @@ cf_read_sector(u_int8 *buf)
 static error_code
 cf_iniz(void)
 {
+    error_code e = E_BTYP;
+
     /* we want to see a drive that's ready */
     if (!cf_drive_ready()) {
         return E_NOTRDY;
@@ -131,11 +133,21 @@ cf_iniz(void)
         u_int16 conf = cf_read16();
         if (!(conf & CF_IDENTIFY_ATA) ||    /* regular ATA drive */
             (conf == CF_IDENTIFY_MAGIC)) {  /* CF */
-            return SUCCESS;
+            e = SUCCESS;
         }
     }
-    outstr("CF: not a supported drive type\n");
-    return E_BTYP;
+
+    outstr("fracane\n");
+    while (CF_STATUS & CF_STATUS_DRQ) {
+        while (CF_STATUS & CF_STATUS_BSY);
+        CF_DATA;
+        outstr(".");
+    }
+    outstr("\n");
+
+    if (e != SUCCESS)
+        outstr("CF: not a supported drive type\n");
+    return e;
 }
 
 static error_code
