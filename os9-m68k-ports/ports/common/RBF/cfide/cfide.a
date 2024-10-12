@@ -395,7 +395,7 @@ read_pio_loop
 * copy LBN 0 header from path buffer to drive table
 read_cache_lbn0
     move.l      PD_DTB(a1),a0               * get drive table pointer (destination)
-    st.b        V_ZeroRd(a0)                * set cache-valid flag
+*    st.b        V_ZeroRd(a0)                * set cache-valid flag
     move.w      #DD_SIZ-1,d1                * drive data size
 read_lbn0_to_dtb_loop
     move.b      (a5,d1.w),(a0,d1.w)         * copy LBN 0 header to drive table
