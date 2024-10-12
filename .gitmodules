@@ -1,3 +1,9 @@
 [submodule "os9_68k_sdk_v12"]
 	path = os9_68k_sdk_v12
 	url = https://github.com/HoldcroftJ/os9_68k_sdk_v12.git
+[submodule "reversing-notes"]
+	path = reversing-notes
+	url = https://github.com/egueli/Aesthedes-notes.git
+[submodule "mame"]
+	path = mame
+	url = github-personal:biappi/mame.git
