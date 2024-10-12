@@ -11,7 +11,7 @@ RDIR		= ./RELS
 MAKER		= $(CFIDE)/cfide_driver.make	# this file
 FLAGFILE	= $(ODIR)/.updated
 SYSDEFS		= ../systype.d
-RFLAGS		= -qb -u=. -u=$(OSDEFS) -u=$(MACDIR)
+RFLAGS		= -s -qb -u=. -u=$(OSDEFS) -u=$(MACDIR)
 SLIB		= $(SYSRELS)/sys.l \
 		  $(SYSRELS)/drvs1.l		# one drive table
 LFLAGS		= -l=$(SLIB) -gu=0.0
