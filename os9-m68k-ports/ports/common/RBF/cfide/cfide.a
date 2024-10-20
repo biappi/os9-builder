@@ -274,10 +274,10 @@ CF_Init:
     lea         _DRVBEG(pc),a0
     bsr         OutValue
 
-    lea         _lbn0_buffer(a2),a0
-    move.l      a0,d0
-    lea         _V_ScZero(pc),a0
-    bsr         OutValue
+*    lea         _lbn0_buffer(a2),a0
+*    move.l      a0,d0
+*    lea         _V_ScZero(pc),a0
+*    bsr         OutValue
  endc
 
 * populate drive table with defaults
@@ -321,6 +321,8 @@ CF_Read:
     move.l      PD_BUF(a1),a5               * get path buffer address (destination)
 
  ifdef DEBUG_PRINT_ARGS
+    bsr         OutNl
+
     move.l      d2,d0
     lea         _read(pc),a0
     bsr         OutValue
@@ -337,10 +339,10 @@ CF_Read:
     lea         _DRVBEG(pc),a0
     bsr         OutValue
 
-    move.l      PD_DTB(a1),a0
-    move.l      V_ScZero(a0),d0
-    lea         _V_ScZero(pc),a0
-    bsr         OutValue
+*    move.l      PD_DTB(a1),a0
+*    move.l      V_ScZero(a0),d0
+*    lea         _V_ScZero(pc),a0
+*    bsr         OutValue
 
     move.l      PD_DTB(a1),a0
     clr.l       d0
@@ -348,11 +350,12 @@ CF_Read:
     lea         _V_DiskID(pc),a0
     bsr         OutValue
 
-    move.l      PD_DTB(a1),a0
-    clr.l       d0
-    move.b      V_ZeroRd(a0),d0
-    lea         _V_ZeroRd(pc),a0
-    bsr         OutValue
+*    move.l      PD_DTB(a1),a0
+*    clr.l       d0
+*    move.b      V_ZeroRd(a0),d0
+*    lea         _V_ZeroRd(pc),a0
+*    bsr         OutValue
+
  endc
 
 * check for a read from LBN 0
@@ -360,7 +363,7 @@ CF_Read:
     bne         read_do_read                * ... no
     move.l      PD_DTB(a1),a0               * get drive table from path descriptor
     tst.b       V_ZeroRd(a0)                * ... do we have a cache?
-    bne         read_from_lbn0_cache        * ... yes
+*    bne         read_from_lbn0_cache        * ... yes
 
 * issue read command
 read_do_read
@@ -376,20 +379,20 @@ read_do_read
     WaitStatus  a3,DRQ,E$Read               * wait for completion
 
 * copy data from drive to path buffer
-    move.l      a2,a0
+    move.l      a5,a0
     move.w      #SECTOR_SIZE-1,d1           * 8-bit copy loop
 read_pio_loop
     move.b      CF_DATA(a3),(a0)+
     dbra        d1,read_pio_loop
 
   ifdef DEBUG_PRINT_DATA
-    move.l      a2,a0
+    move.l      a5,a0
     bsr         OutSector
   endc
 
 * if LBN != 0, we are done here
     tst.l       d2                          * LBN zero?
-    beq         read_cache_lbn0             * yes, need to cache contents
+*    beq         read_cache_lbn0             * yes, need to cache contents
     Success
 
 * copy LBN 0 header from path buffer to drive table
@@ -456,6 +459,8 @@ CF_Write:
     move.l      PD_BUF(a1),a5               * get path buffer address (destination)
 
  ifdef DEBUG_PRINT_ARGS
+    bsr         OutNl
+
     move.l      d2,d0
     lea         _write(pc),a0
     bsr         OutValue
@@ -542,6 +547,9 @@ write_pio_loop
 *   d1.w = error code
 *
 CF_GetStat:
+    lea _getstat(pc),a0
+    bsr OutStr
+
 * SS_VarSect?
     cmpi.w      #SS_VarSect,d0
     beq         CF_GetStat_VarSect
@@ -598,6 +606,7 @@ gsd_is_supported
     blt         gsd_size_ok
     move.l      #LBN_MAX,d0                 * clamp to 8G
 gsd_size_ok
+    Discard16   a3,#194
     move.l      d0,R$d2(a5)                 * return LBA count in caller's d2
     Success
 
@@ -750,5 +759,6 @@ _read           dc.b "READ",C$CR
 _write          dc.b "WRITE",C$CR
 _size           dc.b "SIZE",C$CR
 _identify       dc.b "IDENTIFY",C$CR
+_getstat        dc.b "GETSTAT",C$CR
 
     endsect                                 * psect
