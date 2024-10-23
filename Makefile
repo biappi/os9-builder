@@ -22,6 +22,7 @@ $(MAME_ROMIMAGE):
 
 .PHONY: romimage
 romimage: $(BUILT_ROMIMAGE)
+	cd $(CB030); ../make.sh clean
 	cd $(CB030); ../make.sh
 	mkdir -p $(MAME_ROMS)
 	cp $(BUILT_ROMIMAGE) $(MAME_ROMIMAGE)
@@ -33,6 +34,14 @@ mame: $(MAME_ROMIMAGE)
 .PHONY: run
 run: $(MAME_ROMIMAGE)
 	cd mame; ./fake68 fake68 -window -debug $(DEBUGGER) -harddisk cfcard.hd
+
+.PHONY: run-term
+run-term: $(MAME_ROMIMAGE)
+	cd mame; ./fake68 fake68 -window -debug $(DEBUGGER) -harddisk cfcard.hd -rs232_a null_modem -bitb socket.localhost:6969
+
+.PHONY: listen-term
+listen-term:
+	while true; do stty raw -echo; nc -l 6969; done
 
 .PHONY: make-cfcard
 make-cfcard:
