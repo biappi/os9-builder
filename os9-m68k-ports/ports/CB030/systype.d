@@ -197,6 +197,21 @@ CFIDE_SWAP_BYTES    equ 1
 
 *****************************************************************************
 *
+* Ramdisk configuration
+*
+* RBFDesc Port,Vector,IRQLevel,Priority,DriverName,DriveOptions
+*
+* 0xa0000000 -> 0xa18fffff
+
+DiskR0 macro
+ RBFDesc $a0000000,0,0,0,ram,ramdisk
+SectTrk set 65535 sectors/track
+ endm
+
+
+
+*****************************************************************************
+*
 * DS1302 RTC configuration
 *
 
