@@ -16,7 +16,7 @@ include Makefile.conf
 $(BUILT_ROMIMAGE):
 	cd $(CB030); ../make.sh
 
-$(MAME_ROMIMAGE):
+$(MAME_ROMIMAGE): $(BUILT_ROMIMAGE)
 	mkdir -p $(MAME_ROMS)
 	cp $(BUILT_ROMIMAGE) $(MAME_ROMIMAGE)
 
