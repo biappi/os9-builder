@@ -24,7 +24,7 @@ $(MAME_ROMIMAGE): $(BUILT_ROMIMAGE)
 	cp $(BUILT_ROMIMAGE) $(MAME_ROMIMAGE)
 
 .PHONY: romimage
-romimage: $(BUILT_ROMIMAGE)
+romimage:
 	cd $(CB030); ../make.sh clean
 	cd $(CB030); ../make.sh
 	mkdir -p $(MAME_ROMS)
