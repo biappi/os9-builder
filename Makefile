@@ -1,3 +1,5 @@
+include Makefile.conf
+
 CB030 := os9-m68k-ports/ports/CB030/
 BUILT_ROMIMAGE := $(CB030)/CMDS/BOOTOBJS/ROMBUG/romimage.dev
 
@@ -11,7 +13,6 @@ MAME_ALL_OPTS := $(MAME_TARGET_OPTS) $(MAME_CONF_OPTS) $(MAME_OPTS)
 
 DEBUGGER :=
 
-include Makefile.conf
 
 $(BUILT_ROMIMAGE):
 	cd $(CB030); ../make.sh
