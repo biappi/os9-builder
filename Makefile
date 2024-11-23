@@ -48,5 +48,5 @@ listen-term:
 
 .PHONY: make-cfcard
 make-cfcard:
-	dd if=/dev/zero of=mame/cfcard.hd bs=1M count=5
+	dd if=/dev/zero of=mame/cfcard.hd bs=1m count=5
 
