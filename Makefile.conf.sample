@@ -1,0 +1,17 @@
+# Rename to "Makefile.conf" and customize it to your liking.
+
+# Set to 1 if you want MAME to be built using the SDL library.
+MAME_BUILD_SDL=1
+
+# (ignored unless MAME_BUILD_SDL=1)
+# Base directory of the SDL library (the one with the "include" directory).
+# If not specified, the system default is used.
+SDL_PATH=/Users/willy/Sources/Tools/SDL
+
+# Set to 1 to build MAME with the QT debugger instead of the default one.
+#MAME_BUILD_QT_DEBUGGER=1
+
+# (ignored unless MAME_BUILD_QT_DEBUGGER=1)
+# Base directory of the QT library (the one with the "include" directory).
+#QT_PATH=/Users/willy/Sources/Qt/6.7.3/macos
+
