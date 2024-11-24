@@ -23,6 +23,7 @@ endif
 endif
 
 ifeq ($(MAME_BUILD_QT_DEBUGGER),1)
+MAME_CONF_OPTS += USE_QTDEBUG=1
 MAME_DEBUGGER := -debugger qt
 PATH := $(QT_PATH)/bin:$(QT_PATH)/libexec:$(PATH)
 MAME_LDFLAGS += -rpath $(QT_PATH)/lib
