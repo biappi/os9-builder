@@ -9,11 +9,32 @@ MAME_ROMS := mame/roms/fake68
 MAME_ROMIMAGE := $(MAME_ROMS)/romimage.dev.patched-debugger
 
 MAME_TARGET_OPTS := SUBTARGET=fake68 SOURCES=uilli/fake68.cpp
-MAME_CONF_OPTS := USE_LIBSDL=1 USE_QTDEBUG=1 
 MAME_OPTS := SYMBOLS=1 VERBOSE=1 REGENIE=1
 MAME_OPTS += -j$(NUM_JOBS)
 
-MAME_ALL_OPTS := $(MAME_TARGET_OPTS) $(MAME_CONF_OPTS) $(MAME_OPTS)
+MAME_LDFLAGS := -framework CoreHaptics -liconv -framework GameController -framework ForceFeedback -framework Carbon
+
+ifeq ($(MAME_BUILD_SDL),1)
+MAME_CONF_OPTS += USE_LIBSDL=1
+ifneq ($(strip $(SDL_PATH)),)
+MAME_CFLAGS += -I$(SDL_PATH)/include
+MAME_LDFLAGS += $(SDL_PATH)/lib/libSDL2.a
+endif
+endif
+
+ifeq ($(MAME_BUILD_QT_DEBUGGER),1)
+MAME_DEBUGGER := -debugger qt
+PATH := $(QT_PATH)/bin:$(QT_PATH)/libexec:$(PATH)
+MAME_LDFLAGS += -rpath $(QT_PATH)/lib
+else
+MAME_DEBUGGER := -debugger auto
+endif
+
+MAME_ALL_OPTS += CFLAGS="$(MAME_CFLAGS)"
+MAME_ALL_OPTS += LDFLAGS="$(MAME_LDFLAGS)"
+MAME_ALL_OPTS += $(MAME_TARGET_OPTS)
+MAME_ALL_OPTS += $(MAME_CONF_OPTS)
+MAME_ALL_OPTS += $(MAME_OPTS)
 
 
 $(BUILT_ROMIMAGE):
