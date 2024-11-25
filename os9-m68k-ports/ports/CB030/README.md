@@ -4,15 +4,19 @@ A simple 68030 board with lots of RAM.
 
 https://www.retrobrewcomputers.org/doku.php?id=builderpages:plasmo:cb030
 
+NOTE: this OS-9 port has been modified to run on the MAME emulator. Because the
+CompactFlash doesn't work well, this port uses the MAME NVRAM as storage. Some
+documentation may then look outdated.
+
 ## Status
 
 Mostly functional. Boots from CompactFlash or ROM image.
 
     /term    DUART port A
     /t1      DUART port B
-    /dd      aliased to /c0
-    /c0      CompactFlash
-    /c0_fmt  CompactFlash (formattable)
+    /r0      NVRAM (managed by MAME)
+    /r0_fmt  NVRAM (formattable)
+    /dd      aliased to /r0
 
 ## Getting Started
 
