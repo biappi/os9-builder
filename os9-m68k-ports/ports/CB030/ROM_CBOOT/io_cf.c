@@ -137,12 +137,12 @@ cf_iniz(void)
         }
     }
 
-    outstr("fracane\n");
+    /* discarding the rest of the block */
     while (CF_STATUS & CF_STATUS_DRQ) {
         while (CF_STATUS & CF_STATUS_BSY);
         CF_DATA;
-        outstr(".");
     }
+
     outstr("\n");
 
     if (e != SUCCESS)
