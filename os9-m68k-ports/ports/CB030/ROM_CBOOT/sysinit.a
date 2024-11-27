@@ -88,10 +88,10 @@ _ram_init_loop:
     bset.l  #B_SkipParity,d0
 
 * check for debugger requested
-*    btst.b  #DBGInBug,DBGIn
-*    beq.s   SkipBug
-*    bset.l  #B_NoDebugCall,d0
-*SkipBug:
+    btst.b  #DBGInBug,DBGIn
+    beq.s   SkipBug
+    bset.l  #B_NoDebugCall,d0
+SkipBug:
 
 * save growth method
     move.l  d0,a0
