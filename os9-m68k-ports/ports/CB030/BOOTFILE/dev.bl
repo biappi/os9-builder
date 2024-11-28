@@ -81,3 +81,4 @@ MWOS OS9/68000/CMDS/tmode
 #LOCAL ../../apps/bin/basic68k
 #LOCAL ../../apps/bin/basic68k.stb
 LOCAL ../../apps/bin/hello
+LOCAL ../../apps/bin/AE_CONFIG

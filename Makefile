@@ -4,7 +4,8 @@ NUM_JOBS := $(shell sysctl -n hw.ncpu)
 
 CB030 := os9-m68k-ports/ports/CB030/
 APPS := os9-m68k-ports/apps
-APPS_BINS := $(APPS)/bin/hello
+APPS_BINS += $(APPS)/bin/hello
+APPS_BINS += $(APPS)/bin/AE_CONFIG
 BUILT_ROMIMAGE := $(CB030)/CMDS/BOOTOBJS/ROMBUG/romimage.dev
 
 MAME_ROMS := mame/roms/fake68
@@ -41,6 +42,7 @@ MAME_ALL_OPTS += $(MAME_OPTS)
 
 $(APPS_BINS):
 	cd $(APPS)/src/hello_c; ../make.sh
+	cd $(APPS)/src/AE_CONFIG; ../make.sh
 
 .PHONY: apps
 apps: $(APPS_BINS)
