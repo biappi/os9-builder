@@ -8,4 +8,7 @@ CFLAGS	+= -cw
 LFLAGS	+= -b
 LFLAGS	+= -i
 
-$(APP):	$(RELS) Makefile
+ODIR = ../../bin
+RDIR = ../../bin
+
+$(APP):	$(RELS)

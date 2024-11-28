@@ -1,0 +1,4 @@
+# This directory must be present to hold the apps' binaries.
+
+*
+!.gitignore

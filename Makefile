@@ -3,6 +3,8 @@ include Makefile.conf
 NUM_JOBS := $(shell sysctl -n hw.ncpu)
 
 CB030 := os9-m68k-ports/ports/CB030/
+APPS := os9-m68k-ports/apps
+APPS_BINS := $(APPS)/bin/hello
 BUILT_ROMIMAGE := $(CB030)/CMDS/BOOTOBJS/ROMBUG/romimage.dev
 
 MAME_ROMS := mame/roms/fake68
@@ -37,9 +39,14 @@ MAME_ALL_OPTS += $(MAME_TARGET_OPTS)
 MAME_ALL_OPTS += $(MAME_CONF_OPTS)
 MAME_ALL_OPTS += $(MAME_OPTS)
 
+$(APPS_BINS):
+	cd $(APPS)/src/hello_c; ../make.sh
 
-$(BUILT_ROMIMAGE):
-	cd $(CB030); ../make.sh clean
+.PHONY: apps
+apps: $(APPS_BINS)
+
+
+$(BUILT_ROMIMAGE): $(APPS_BINS)
 	cd $(CB030); ../make.sh
 
 $(MAME_ROMIMAGE): $(BUILT_ROMIMAGE)
