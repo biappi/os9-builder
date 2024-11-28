@@ -102,14 +102,14 @@ SysStart:
 SysParam:
     dc.b    0
 
- ifdef ROMBOOT
+* ifdef ROMBOOT
 * no root device for ROM boot
-SysDev equ 0
- else
+*SysDev equ 0
+* else
 * try to iniz a default drive
 SysDev:
     dc.b    "/dd",0
- endc
+* endc
 
 * console terminal
 ConsolNm:
