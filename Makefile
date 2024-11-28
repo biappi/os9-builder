@@ -39,6 +39,7 @@ MAME_ALL_OPTS += $(MAME_OPTS)
 
 
 $(BUILT_ROMIMAGE):
+	cd $(CB030); ../make.sh clean
 	cd $(CB030); ../make.sh
 
 $(MAME_ROMIMAGE): $(BUILT_ROMIMAGE)
@@ -46,11 +47,7 @@ $(MAME_ROMIMAGE): $(BUILT_ROMIMAGE)
 	cp $(BUILT_ROMIMAGE) $(MAME_ROMIMAGE)
 
 .PHONY: romimage
-romimage:
-	cd $(CB030); ../make.sh clean
-	cd $(CB030); ../make.sh
-	mkdir -p $(MAME_ROMS)
-	cp $(BUILT_ROMIMAGE) $(MAME_ROMIMAGE)
+romimage: $(BUILT_ROMIMAGE) $(MAME_ROMIMAGE)
 
 .PHONY: mame
 mame: $(MAME_ROMIMAGE)
