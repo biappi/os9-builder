@@ -48,7 +48,8 @@ $(APPS_BINS):
 apps: $(APPS_BINS)
 
 
-$(BUILT_ROMIMAGE): $(APPS_BINS)
+$(BUILT_ROMIMAGE):
+	cd $(CB030); ../make.sh clean
 	cd $(CB030); ../make.sh
 
 $(MAME_ROMIMAGE): $(BUILT_ROMIMAGE)
