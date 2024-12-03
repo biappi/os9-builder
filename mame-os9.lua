@@ -382,18 +382,27 @@ function print_regs(cpu, mem, regmask)
     return stname .. table.concat(line, ", ")
 end
 
-function pc_name(pc)
-    local GHIDRA_OFFSET = 0x00030000
+function in_module(pc)
     local modules = module_dir()
 
     for i=1,#modules do
         local m = modules[i]
         if m.addr <= pc and pc < (m.addr + m.size) then
-            return string.format("%s+%08x", m.name, pc - m.addr + GHIDRA_OFFSET)
+            return m
         end
     end
 
-    return string.format("%08x", pc)
+    return nil
+end
+
+function pc_name(pc)
+    local GHIDRA_OFFSET = 0x00030000
+    local module = in_module(pc)
+    if module then
+        return string.format("%s+%08x", module.name, pc - module.addr + GHIDRA_OFFSET)
+    else
+        return string.format("%08x", pc)
+    end
 end
 
 function trap_0_callback(cpu, mem)
