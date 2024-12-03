@@ -422,7 +422,10 @@ function trap_0_callback(cpu, mem)
     local inreg  = info[2]
     local outreg = info[3]
 
-    print(string.format("OS9 syscall: %s  %-13s %s", pc_name(ret - 2), name, print_regs(cpu, mem, inreg)))
+    local label = pc_name(ret - 2)
+    local regs = print_regs(cpu, mem, inreg)
+
+    print(string.format("OS9 syscall: %s  %-13s %s", label, name, regs))
 end
 
 local consolelog = manager.machine.debugger.consolelog
