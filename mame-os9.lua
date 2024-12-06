@@ -428,6 +428,33 @@ function trap_0_callback(cpu, mem)
     print(string.format("OS9 syscall: %s  %-13s %s", label, name, regs))
 end
 
+function os9_break(module_name, ghidra_address)
+    local modules = module_dir()
+
+    for i=1,#modules do
+        local m = modules[i]
+        if m.name == module_name then
+            local addr = m.addr + ghidra_address - 0x30000
+            print(string.format("Breakpoint set at %s", pc_name(addr)))
+            manager.machine.debugger:command(string.format("bpset %08x", addr))
+            return
+        end
+    end
+
+    print("Module not found")
+end
+
+-- returns PC, adjusted for Ghidra
+function pc_ghidra()
+    local cpu = get_cpu()
+    local pc = cpu.state['PC'].value
+    return pc - 0x30000
+end
+
+function trace_syscalls()
+    manager.machine.debugger:command("bpset 52c,1,{ print w@(d@(a7 + 2)) }")
+end
+
 local consolelog = manager.machine.debugger.consolelog
 local consolelast = 0
 
