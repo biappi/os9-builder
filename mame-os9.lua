@@ -426,6 +426,11 @@ function pc_name(pc)
     end
 end
 
+-- The list of actions that will be run when a module is loaded in memory.
+-- Each item is a key-value pair, with:
+--   module: the name of the module
+--   func: the function to run; it will be invoked with the absolute address of
+--         the module
 pending_module_load_actions = {}
 
 function run_pending_module_load_actions()
@@ -435,18 +440,25 @@ function run_pending_module_load_actions()
     
     local modules = module_dir()
 
-    for name, action in pairs(pending_module_load_actions) do
+    local still_pending = {}
+
+    -- iterate over all pending actions
+    for j=1,#pending_module_load_actions do
+        local action = pending_module_load_actions[j]
+        local found = false
         for i=1,#modules do
             local m = modules[i]
-            if m.name == name then
-                local addr = action.addr
-                local pc = m.addr + addr - 0x30000
-                action.func(pc)                
-                pending_module_load_actions[name] = nil
-                break
+            if m.name == action.module then
+                action.func(m.addr)
+                found = true         
             end
         end
+        if not found then
+            table.insert(still_pending, action)
+        end
     end
+
+    pending_module_load_actions = still_pending
 end
 
 function trap_0_callback(cpu, mem)
@@ -480,25 +492,26 @@ end
 function os9_break(module_name, ghidra_address)
     local modules = module_dir()
 
-    local bp_func = function(pc)
-        print(string.format("Breakpoint set at %s", pc_name(pc)))
-        manager.machine.debugger:command(string.format("bpset %08x", pc))
+    local bp_func = function(base_addr)
+        local addr = base_addr + ghidra_address - 0x30000
+        manager.machine.debugger:command(string.format("bpset %08x", addr))
+        print(string.format("Breakpoint set at %s", pc_name(addr)))
     end
 
     for i=1,#modules do
         local m = modules[i]
         if m.name == module_name then
-            local addr = m.addr + ghidra_address - 0x30000
-            bp_func(addr)
+            bp_func(m.addr)
             return
         end    
     end    
 
     print("Module not found; will add breakpoint when loaded in memory")
-    pending_module_load_actions[module_name] = {
-        addr = ghidra_address,
+    -- add action to run when module is loaded
+    table.insert(pending_module_load_actions, {
+        module = module_name,
         func = bp_func
-    }
+    })
 end
 
 -- returns PC, adjusted for Ghidra
