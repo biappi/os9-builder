@@ -426,6 +426,29 @@ function pc_name(pc)
     end
 end
 
+local pending_module_breakpoints = {}
+
+function add_pending_breakpoints()
+    if #pending_module_breakpoints == 0 then 
+        return 
+    end
+    
+    local modules = module_dir()
+
+    for name, addr in pairs(pending_module_breakpoints) do
+        for i=1,#modules do
+            local m = modules[i]
+            if m.name == name then
+                local pc = m.addr + addr - 0x30000
+                print(string.format("Breakpoint set at %s", pc_name(pc)))
+                manager.machine.debugger:command(string.format("bpset %08x", pc))
+                pending_module_breakpoints[name] = nil
+                return
+            end
+        end
+    end
+end
+
 function trap_0_callback(cpu, mem)
     local sp  = cpu.state['SP'].value
     local ret = mem:read_u32(sp + 2)
@@ -447,8 +470,13 @@ function trap_0_callback(cpu, mem)
     local regs = print_regs(sys, cpu, mem, inreg)
 
     print(string.format("OS9 syscall: %s  %-13s %s", label, name, regs))
+
+    add_pending_breakpoints()
 end
 
+-- Adds a breakpoint at a given module and Ghidra address.
+-- If the module is not found, it postpones the addition until an invocation of
+-- F$Link for that module.
 function os9_break(module_name, ghidra_address)
     local modules = module_dir()
 
@@ -462,7 +490,8 @@ function os9_break(module_name, ghidra_address)
         end
     end
 
-    print("Module not found")
+    print("Module not found; will add breakpoint when loaded in memory")
+    pending_module_breakpoints[module_name] = ghidra_address
 end
 
 -- returns PC, adjusted for Ghidra
