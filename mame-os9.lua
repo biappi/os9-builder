@@ -426,24 +426,24 @@ function pc_name(pc)
     end
 end
 
-local pending_module_breakpoints = {}
+pending_module_load_actions = {}
 
-function add_pending_breakpoints()
-    if #pending_module_breakpoints == 0 then 
+function run_pending_module_load_actions()
+    if next(pending_module_load_actions) == nil then 
         return 
     end
     
     local modules = module_dir()
 
-    for name, addr in pairs(pending_module_breakpoints) do
+    for name, action in pairs(pending_module_load_actions) do
         for i=1,#modules do
             local m = modules[i]
             if m.name == name then
+                local addr = action.addr
                 local pc = m.addr + addr - 0x30000
-                print(string.format("Breakpoint set at %s", pc_name(pc)))
-                manager.machine.debugger:command(string.format("bpset %08x", pc))
-                pending_module_breakpoints[name] = nil
-                return
+                action.func(pc)                
+                pending_module_load_actions[name] = nil
+                break
             end
         end
     end
@@ -471,7 +471,7 @@ function trap_0_callback(cpu, mem)
 
     print(string.format("OS9 syscall: %s  %-13s %s", label, name, regs))
 
-    add_pending_breakpoints()
+    run_pending_module_load_actions()
 end
 
 -- Adds a breakpoint at a given module and Ghidra address.
@@ -480,18 +480,25 @@ end
 function os9_break(module_name, ghidra_address)
     local modules = module_dir()
 
+    local bp_func = function(pc)
+        print(string.format("Breakpoint set at %s", pc_name(pc)))
+        manager.machine.debugger:command(string.format("bpset %08x", pc))
+    end
+
     for i=1,#modules do
         local m = modules[i]
         if m.name == module_name then
             local addr = m.addr + ghidra_address - 0x30000
-            print(string.format("Breakpoint set at %s", pc_name(addr)))
-            manager.machine.debugger:command(string.format("bpset %08x", addr))
+            bp_func(addr)
             return
-        end
-    end
+        end    
+    end    
 
     print("Module not found; will add breakpoint when loaded in memory")
-    pending_module_breakpoints[module_name] = ghidra_address
+    pending_module_load_actions[module_name] = {
+        addr = ghidra_address,
+        func = bp_func
+    }
 end
 
 -- returns PC, adjusted for Ghidra
