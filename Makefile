@@ -19,10 +19,6 @@ MAME_LDFLAGS := -framework CoreHaptics -liconv -framework GameController -framew
 
 ifeq ($(MAME_BUILD_SDL),1)
 MAME_CONF_OPTS += USE_LIBSDL=1
-ifneq ($(strip $(SDL_PATH)),)
-MAME_CFLAGS += -I$(SDL_PATH)/include
-MAME_LDFLAGS += $(SDL_PATH)/lib/libSDL2.a
-endif
 endif
 
 ifeq ($(MAME_BUILD_QT_DEBUGGER),1)
