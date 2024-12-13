@@ -525,6 +525,42 @@ function trace_syscalls()
     manager.machine.debugger:command("bpset 52c,1,{ print w@(d@(a7 + 2)) }")
 end
 
+-- Given a memory address and a text, calls the debugger to set a breakpoint
+-- that prints the text and resumes.
+function trace_exec(addr, text)
+    local command = string.format("bpset %08x,1,{ print \"%s\"; g }", addr, text)
+    manager.machine.debugger:command(command)
+end
+
+function import_comments_from_ghidra(module, file_name)
+    local file = io.open(file_name, "r");
+    local lines = {}
+    for line in file:lines() do
+        table.insert(lines, line);
+    end
+    file:close()
+    
+    add_comments = function(module_addr)
+        print("Adding comments for " .. module)
+        for i=1,#lines do
+            local line = lines[i]
+            local match = line:find("^module:%x%x%x%x%x%x%x%x")
+            if match then
+                local ghidra_addr = tonumber(line:sub(match + 8, match + 15), 16)
+                local addr = module_addr + ghidra_addr - 0x30000
+                local comment = line:sub(33)
+                local command = string.format('comadd %08x,"%s"', addr, comment)
+                manager.machine.debugger:command(command)
+            end
+        end
+    end
+    
+    table.insert(pending_module_load_actions, {
+        module = module,
+        func = add_comments
+    })
+end
+
 local consolelog = manager.machine.debugger.consolelog
 local consolelast = 0
 
