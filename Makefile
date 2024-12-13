@@ -48,6 +48,7 @@ $(APPS_BINS):
 apps: $(APPS_BINS)
 
 
+.PHONY: $(BUILT_ROMIMAGE)
 $(BUILT_ROMIMAGE):
 	cd $(CB030); ../make.sh clean
 	cd $(CB030); ../make.sh
@@ -68,7 +69,7 @@ run: $(MAME_ROMIMAGE)
 	cd mame; ./fake68 fake68 -window -console -debug $(MAME_DEBUGGER) -harddisk cfcard.hd
 
 .PHONY: run-term
-run-term: $(MAME_ROMIMAGE)
+run-term:
 	cd mame; ./fake68 fake68 -window -console -debug $(MAME_DEBUGGER) -harddisk cfcard.hd -rs232_a null_modem -bitb socket.localhost:6969
 
 .PHONY: listen-term
