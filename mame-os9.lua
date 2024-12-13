@@ -301,7 +301,22 @@ local os9_ss_opts = {
     "SS_PMOD",
     "SS_SPF",
     "SS_LUOPT",
-    "SS_RTNFM"
+    "SS_RTNFM",
+}
+
+local os9_event_opts = {
+    "Ev_Link",
+    "Ev_UnLnk",
+    "Ev_Creat",
+    "Ev_Delet",
+    "Ev_Wait",
+    "Ev_WaitR",
+    "Ev_Read",
+    "Ev_Info",
+    "Ev_Signl",
+    "Ev_Pulse",
+    "Ev_Set",
+    "Ev_SetR",
 }
 
 function is_print(c)
@@ -351,7 +366,7 @@ function print_reg(cpu, mem, regs, regnum, lenspec)
     return string.format("%s: %s%s", reg, val, comm)
 end
 
-function print_regs(cpu, mem, regmask)
+function print_regs(sys, cpu, mem, regmask)
     local REGBITS = 0x3FFFFFFF
     local STATCALL = 0x80000000
 
@@ -360,6 +375,12 @@ function print_regs(cpu, mem, regmask)
     if (regmask & STATCALL) == STATCALL then
         local st = cpu.state["D1"].value
         local name = os9_ss_opts[st + 1]
+        if name then stname = string.format("(%s) ", name) end
+    end
+
+    if sys == 0x53 then
+        local ev = cpu.state["D1"].value
+        local name = os9_event_opts[ev + 1]
         if name then stname = string.format("(%s) ", name) end
     end
 
@@ -423,7 +444,7 @@ function trap_0_callback(cpu, mem)
     local outreg = info[3]
 
     local label = pc_name(ret - 2)
-    local regs = print_regs(cpu, mem, inreg)
+    local regs = print_regs(sys, cpu, mem, inreg)
 
     print(string.format("OS9 syscall: %s  %-13s %s", label, name, regs))
 end
