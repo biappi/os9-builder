@@ -31,6 +31,29 @@ _DUARTVect  equ 27                      * ... vectored
 _PortABase  equ _DUARTBase              * port A registers
 _PortBBase  equ _DUARTBase + $10        * port B registers
 
+
+* // *   vec.no  addr
+* // *   ------  -----   -----------------------
+* // *   25      000064  Level 1 autovector
+* // *   26      000068  Level 2 autovector
+* // *   27      00006c  Level 3 autovector
+* // *   28      000070  Level 4 autovector
+* // *   29      000074  Level 5 autovector
+* // *   30      000078  Level 6 autovector
+* // *   34      00007c  Level 7 NMI autovector
+
+_DUART1Base  equ $fffff040
+_DUART1Level equ 4
+_DUART1Vect  equ 28
+
+_DUART2Base  equ $fffff080
+_DUART2Level equ 5
+_DUART2Vect  equ 29
+
+_DUART3Base  equ $fffff0c0
+_DUART3Level equ 6
+_DUART3Vect  equ 30
+
 _TckBase    equ $ffff9000               * turn-on address
 _TckVect    equ 30                      * new CPLD, level 6 autovector
 *_TckVect    equ 26                      * old CPLD, level 2 autovector
@@ -179,6 +202,23 @@ T1 macro
 DevCon dc.w 0
 
     endm                                * T1
+
+
+T10 macro
+    SCFDesc _DUART1Base,_DUART1Vect,_DUART1Level,5,$00,$0f,sc68681
+DevCon dc.w 0
+    endm
+
+T11 macro
+    SCFDesc _DUART2Base,_DUART2Vect,_DUART2Level,5,$00,$0f,sc68681
+DevCon dc.w 0
+    endm
+
+T12 macro
+    SCFDesc _DUART3Base,_DUART3Vect,_DUART3Level,5,$00,$0f,sc68681
+DevCon dc.w 0
+    endm
+
 
 *****************************************************************************
 *
