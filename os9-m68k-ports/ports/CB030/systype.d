@@ -204,17 +204,17 @@ DevCon dc.w 0
     endm                                * T1
 
 
-T10 macro
+CRT80 macro
     SCFDesc _DUART1Base,_DUART1Vect,_DUART1Level,5,$00,$0f,sc68681
 DevCon dc.w 0
     endm
 
-T11 macro
+CRT81 macro
     SCFDesc _DUART2Base,_DUART2Vect,_DUART2Level,5,$00,$0f,sc68681
 DevCon dc.w 0
     endm
 
-T12 macro
+CRT82 macro
     SCFDesc _DUART3Base,_DUART3Vect,_DUART3Level,5,$00,$0f,sc68681
 DevCon dc.w 0
     endm

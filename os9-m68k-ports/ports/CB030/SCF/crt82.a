@@ -1,0 +1,6 @@
+ nam CRT82
+ use defsfile
+ use <scfdesc.a>
+ CRT82
+ ends
+
