@@ -55,8 +55,8 @@ _DUART3Level equ 6
 _DUART3Vect  equ 30
 
 _TckBase    equ $ffff9000               * turn-on address
-_TckVect    equ 30                      * new CPLD, level 6 autovector
-*_TckVect    equ 26                      * old CPLD, level 2 autovector
+*_TckVect    equ 30                      * new CPLD, level 6 autovector
+_TckVect    equ 26                      * old CPLD, level 2 autovector
 
 *****************************************************************************
 *
@@ -108,8 +108,8 @@ NoDataDis set 1
 StackSz set $1000
 
 * Compat set NoClock
-Compat  set (1<<5)  TEST: don't start clock on cold start
-Config set (1<<3) TEST: disable system-state time-slicing
+* Compat  set (1<<5)  TEST: don't start clock on cold start
+* Config set (1<<3) TEST: disable system-state time-slicing
 
 CONFIG macro
 
@@ -140,8 +140,8 @@ ConsolNm:
 
 * clock module name
 ClockNm:
-    dc.b   0
-* "tkcb030",0
+    dc.b    "tkcb030",0
+*dc.b   0
 
 * ordered list of extensions
 Extens:
