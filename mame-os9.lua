@@ -431,34 +431,40 @@ end
 --   module: the name of the module
 --   func: the function to run; it will be invoked with the absolute address of
 --         the module
-pending_module_load_actions = {}
+module_load_actions = {}
 
-function run_pending_module_load_actions()
-    if next(pending_module_load_actions) == nil then 
+-- The set of modules loaded in memory at the last invocation of
+-- run_module_load_actions().
+last_loaded_modules = {}
+
+function run_module_load_actions()
+    if next(module_load_actions) == nil then 
         return 
     end
     
     local modules = module_dir()
+    local loaded_modules = {}
+    local loaded_modules_now = {}
 
-    local still_pending = {}
-
-    -- iterate over all pending actions
-    for j=1,#pending_module_load_actions do
-        local action = pending_module_load_actions[j]
-        local found = false
-        for i=1,#modules do
-            local m = modules[i]
-            if m.name == action.module then
-                action.func(m.addr)
-                found = true         
-            end
-        end
-        if not found then
-            table.insert(still_pending, action)
+    for i=1,#modules do
+        local m = modules[i]
+        loaded_modules[m.name] = m.addr
+        if not last_loaded_modules[m.name] then
+            print(string.format("Now loaded: %s@%08x", m.name, m.addr))
+            loaded_modules_now[m.name] = m.addr
         end
     end
 
-    pending_module_load_actions = still_pending
+    last_loaded_modules = loaded_modules
+
+    for j=1,#module_load_actions do
+        local action = module_load_actions[j]
+        for name, addr in pairs(loaded_modules_now) do
+            if name == action.module then
+                action.func(addr)
+            end
+        end
+    end
 end
 
 function trap_0_callback(cpu, mem)
@@ -483,7 +489,7 @@ function trap_0_callback(cpu, mem)
 
     print(string.format("OS9 syscall: %s  %-13s %s", label, name, regs))
 
-    run_pending_module_load_actions()
+    run_module_load_actions()
 end
 
 -- Adds a breakpoint at a given module and Ghidra address.
@@ -508,7 +514,7 @@ function os9_break(module_name, ghidra_address)
 
     print("Module not found; will add breakpoint when loaded in memory")
     -- add action to run when module is loaded
-    table.insert(pending_module_load_actions, {
+    table.insert(module_load_actions, {
         module = module_name,
         func = bp_func
     })
@@ -555,7 +561,7 @@ function import_comments_from_ghidra(module, file_name)
         end
     end
     
-    table.insert(pending_module_load_actions, {
+    table.insert(module_load_actions, {
         module = module,
         func = add_comments
     })
