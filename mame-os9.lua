@@ -586,8 +586,7 @@ function periodic_cb()
                 trap_0_callback(cpu, mem)
                 manager.machine.debugger:command("g")
             else
-                print("LUA stopped at " .. point)
-                print(cpu.state['PC'])
+                print("Breakpoint is at " .. pc_name(cpu.state['PC'].value))
             end
         end
     end
