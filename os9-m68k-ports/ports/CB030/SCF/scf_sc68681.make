@@ -12,7 +12,7 @@ MAKER		= ./scf_sc68681.make		# this file
 FLAGFILE	= $(ODIR)/.updated
 SPEC_RFLAGS	= #-aHWSHAKE			# enable hardware handshaking
 SYSDEFS		= ../systype.d
-RFLAGS		= -qb -u=. -u=$(OSDEFS) -u=$(MACDIR) $(SPEC_RFLAGS)
+RFLAGS		= -l -f -g -qb -u=. -u=$(OSDEFS) -u=$(MACDIR) $(SPEC_RFLAGS)
 SLIB		= $(SYSRELS)/sys.l \
 		  $(SYSRELS)/scfstat.l
 LFLAGS		= -l=$(SLIB) -gu=0.0
