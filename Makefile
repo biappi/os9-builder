@@ -66,7 +66,7 @@ run: $(MAME_ROMIMAGE)
 
 .PHONY: run-term
 run-term:
-	cd mame; ./fake68 fake68 -window -console -debug $(MAME_DEBUGGER) -harddisk cfcard.hd -rs232_a null_modem -bitb socket.localhost:6969
+	cd mame; ./fake68 fake68 -window -console -log -oslog -debug $(MAME_DEBUGGER) -harddisk cfcard.hd -rs232_a null_modem -bitb socket.localhost:6969
 
 .PHONY: listen-term
 listen-term:
