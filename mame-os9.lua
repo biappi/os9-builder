@@ -304,19 +304,42 @@ local os9_ss_opts = {
     "SS_RTNFM",
 }
 
+function regmask(s)
+    local regs = { "a6", "a5", "a4", "a3", "a2", "a1", "a0",
+             "d7", "d6", "d5", "d4", "d3", "d2", "d1", "d0" }
+    local mask = 0
+    for k, reg in pairs(regs) do
+        mask = mask << 2
+        local pos = string.find(s, reg)
+        if pos ~= nil then
+            local specifier = string.sub(s, pos, pos + 4)
+            local lenspec = specifier.sub(specifier, 3, 4)
+            if lenspec == ".b" then
+                mask = mask | 1
+            elseif lenspec == ".w" then
+                mask = mask | 2
+            elseif lenspec == ".l" then
+                mask = mask | 3
+            end
+        end
+    end
+    return mask
+end
+
+
 local os9_event_opts = {
-    "Ev_Link",
-    "Ev_UnLnk",
-    "Ev_Creat",
-    "Ev_Delet",
-    "Ev_Wait",
-    "Ev_WaitR",
-    "Ev_Read",
-    "Ev_Info",
-    "Ev_Signl",
-    "Ev_Pulse",
-    "Ev_Set",
-    "Ev_SetR",
+    { "Ev_Link",  regmask("a0.l") },
+    { "Ev_UnLnk", regmask("d0.l") },
+    { "Ev_Creat", regmask("d0.l d2.w d3.w") },
+    { "Ev_Delet", regmask("a0.l") },
+    { "Ev_Wait",  regmask("d0.l d2.l d3.l") },
+    { "Ev_WaitR", regmask("d0.l d2.l d3.l") },
+    { "Ev_Read",  regmask("d0.l") },
+    { "Ev_Info",  regmask("d0.l a0.l") },
+    { "Ev_Pulse", regmask("d0.l d1.w d2.l") },
+    { "Ev_Signl", regmask("d0.l d1.w") },
+    { "Ev_Set",   regmask("d0.l d1.w d2.l") },
+    { "Ev_SetR",  regmask("d0.l d1.w d2.l") },
 }
 
 function is_print(c)
@@ -369,6 +392,7 @@ end
 function print_regs(sys, cpu, mem, regmask)
     local REGBITS = 0x3FFFFFFF
     local STATCALL = 0x80000000
+    local EVCALL = 0x40000000
 
     local stname = ""
 
@@ -378,13 +402,21 @@ function print_regs(sys, cpu, mem, regmask)
         if name then stname = string.format("(%s) ", name) end
     end
 
-    if sys == 0x53 then
+    local mask = nil
+
+    if (regmask & EVCALL) == EVCALL then
         local ev = cpu.state["D1"].value
-        local name = os9_event_opts[ev + 1]
-        if name then stname = string.format("(%s) ", name) end
+        local event = os9_event_opts[ev + 1]
+        if event then
+            name = event[1]
+            stname = string.format("(%s) ", name)
+            mask = event[2]
+        end
     end
 
-    local mask = regmask & REGBITS
+    if mask == nil then
+        mask = regmask & REGBITS
+    end
 
     local line = { }
 
