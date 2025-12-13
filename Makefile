@@ -1,6 +1,6 @@
 include Makefile.conf
 
-NUM_JOBS := $(shell sysctl -n hw.ncpu)
+NUM_JOBS := $(shell ./portable_nproc.sh)
 
 CB030 := os9-m68k-ports/ports/CB030/
 APPS := os9-m68k-ports/apps
