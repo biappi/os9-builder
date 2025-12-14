@@ -15,7 +15,14 @@ MAME_TARGET_OPTS := SUBTARGET=fake68 SOURCES=uilli/fake68.cpp
 MAME_OPTS := SYMBOLS=1 VERBOSE=1 REGENIE=1
 MAME_OPTS += -j$(NUM_JOBS)
 
-MAME_LDFLAGS := -framework CoreHaptics -liconv -framework GameController -framework ForceFeedback -framework Carbon
+MAME_LDFLAGS_MACOS := -framework CoreHaptics -liconv -framework GameController -framework ForceFeedback -framework Carbon
+
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+MAME_LDFLAGS := $(MAME_LDFLAGS_MACOS)
+else
+MAME_LDFLAGS :=
+endif
 
 ifeq ($(MAME_BUILD_SDL),1)
 MAME_CONF_OPTS += USE_LIBSDL=1
