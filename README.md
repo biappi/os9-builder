@@ -37,8 +37,24 @@ The top-level `Makefile` has recipes for the most common tasks.
     sudo apt-get update
     sudo apt install wine32 libsdl2-dev libsdl2-ttf-dev
     ```
-2. Rename `Makefile.conf.sample` to `Makefile.conf`
-3. Edit `Makefile.conf`:
+2. Configure Wine for 32-bit executables:
+    ```
+    WINEARCH=win32 winecfg
+    ```
+3. Create the drive mapping:
+    ```
+    os9_builder_root=$PWD; (cd ~/.wine/dosdevices/; rm -f m:; ln -s $os9_builder_root m:)
+    ```
+4. Rename `Makefile.conf.sample` to `Makefile.conf`
+5. Edit `Makefile.conf`:
     ```
     SDL_PATH=/usr/lib/x86_64-linux-gnu/cmake/SDL2
+    ```
+6. Create the hard disk image:
+    ```
+    make make-cfcard
+    ```
+7. Build OS-9 and run emulator:
+    ```
+    make run
     ```
