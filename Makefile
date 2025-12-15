@@ -20,8 +20,10 @@ MAME_LDFLAGS_MACOS := -framework CoreHaptics -liconv -framework GameController -
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
 MAME_LDFLAGS := $(MAME_LDFLAGS_MACOS)
+DD_MEGABYTE := m
 else
 MAME_LDFLAGS :=
+DD_MEGABYTE := M
 endif
 
 ifeq ($(MAME_BUILD_SDL),1)
@@ -81,5 +83,5 @@ listen-term:
 
 .PHONY: make-cfcard
 make-cfcard:
-	dd if=/dev/zero of=mame/cfcard.hd bs=1m count=5
+	dd if=/dev/zero of=mame/cfcard.hd bs=1$(DD_MEGABYTE) count=5
 
