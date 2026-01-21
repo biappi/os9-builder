@@ -11,7 +11,7 @@ BUILT_ROMIMAGE := $(CB030)/CMDS/BOOTOBJS/ROMBUG/romimage.dev
 MAME_ROMS := mame/roms/fake68
 MAME_ROMIMAGE := $(MAME_ROMS)/romimage.dev.patched-debugger
 
-MAME_TARGET_OPTS := SUBTARGET=fake68 SOURCES=uilli/fake68.cpp
+MAME_TARGET_OPTS := SUBTARGET=lessfake SOURCES=uilli/lessfake.cpp
 MAME_OPTS := SYMBOLS=1 VERBOSE=1 REGENIE=1
 MAME_OPTS += -j$(NUM_JOBS)
 
@@ -66,16 +66,16 @@ $(MAME_ROMIMAGE): $(BUILT_ROMIMAGE)
 romimage: $(BUILT_ROMIMAGE) $(MAME_ROMIMAGE)
 
 .PHONY: mame
-mame: $(MAME_ROMIMAGE)
+mame: 
 	cd mame; make $(MAME_ALL_OPTS)
 
 .PHONY: run
-run: $(MAME_ROMIMAGE)
-	cd mame; ./fake68 fake68 -window -console -debug $(MAME_DEBUGGER) -harddisk cfcard.hd
+run: 
+	cd mame; ./lessfake lessfake -window -console -debug $(MAME_DEBUGGER) -harddisk cfcard.hd
 
 .PHONY: run-term
 run-term:
-	cd mame; ./fake68 fake68 -window -console -uimodekey SPACE -log -oslog -debug $(MAME_DEBUGGER) -harddisk cfcard.hd -rs232_a null_modem -bitb socket.localhost:6969
+	cd mame; ./lessfake lessfake -window -console -uimodekey SPACE -log -oslog -debug $(MAME_DEBUGGER) -harddisk cfcard.hd -rs232_a null_modem -bitb socket.localhost:6969
 
 .PHONY: listen-term
 listen-term:
