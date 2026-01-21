@@ -58,3 +58,40 @@ The top-level `Makefile` has recipes for the most common tasks.
     ```
     make run
     ```
+
+## Run
+
+1. On a terminal, run:
+
+    ```
+    make listen-term
+    ```
+
+2. On a separate terminal:
+
+    ```
+    make run-term
+    ```
+
+3. In the debugger window, type `g` to start the machine
+4. To be done the first time:
+    1. [Toggle UI controls](https://docs.mamedev.org/usingmame/mamemenus.html#introduction). If none of the keys work, try adding `-uimodekey SPACE` in `run-term` recipe in [Makefile](Makefile) then rerun and press space.
+    2. Press Tab to show the main menu.
+    3. In Machine Configuration, scroll down to `RS-232 Null Modem [root:rs232_a:null_modem]`. Change the settings to:
+        * Flow Control: RTS
+        * Data Bits: 8
+        * Parity: None
+        * RX Baud: 19200
+        * Stop Bits: 1
+        * TX Baud: 19200
+    4. Press Esc multiple times to leave the menu
+    5. Press F3 to restart the machine.
+5. Look at the `listen-term` terminal, you should see the bootloader messages and the OS-9 prompt.
+
+When booted the first time, it will create an empty RBF image at `mame/nvram/fake68/nvram`. One can use an existing RBF image to copy the `CMDS` directory in, e.g. with Toolshed, and start working with the system:
+
+```sh
+export SRC=<path-of-source-rbf-image-file>
+os9 makdir mame/nvram/fake68/nvram,CMDS
+
+```
