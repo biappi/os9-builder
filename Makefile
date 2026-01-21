@@ -2,15 +2,6 @@ include Makefile.conf
 
 NUM_JOBS := $(shell ./portable_nproc.sh)
 
-CB030 := os9-m68k-ports/ports/CB030/
-APPS := os9-m68k-ports/apps
-APPS_BINS += $(APPS)/bin/hello
-APPS_BINS += $(APPS)/bin/AE_CONFIG
-BUILT_ROMIMAGE := $(CB030)/CMDS/BOOTOBJS/ROMBUG/romimage.dev
-
-MAME_ROMS := mame/roms/fake68
-MAME_ROMIMAGE := $(MAME_ROMS)/romimage.dev.patched-debugger
-
 MAME_TARGET_OPTS := SUBTARGET=lessfake SOURCES=uilli/lessfake.cpp
 MAME_OPTS := SYMBOLS=1 VERBOSE=1 REGENIE=1
 MAME_OPTS += -j$(NUM_JOBS)
@@ -20,10 +11,8 @@ MAME_LDFLAGS_MACOS := -framework CoreHaptics -liconv -framework GameController -
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
 MAME_LDFLAGS := $(MAME_LDFLAGS_MACOS)
-DD_MEGABYTE := m
 else
 MAME_LDFLAGS :=
-DD_MEGABYTE := M
 endif
 
 ifeq ($(MAME_BUILD_SDL),1)
@@ -45,26 +34,6 @@ MAME_ALL_OPTS += $(MAME_TARGET_OPTS)
 MAME_ALL_OPTS += $(MAME_CONF_OPTS)
 MAME_ALL_OPTS += $(MAME_OPTS)
 
-$(APPS_BINS):
-	cd $(APPS)/src/hello_c; ../make.sh
-	cd $(APPS)/src/AE_CONFIG; ../make.sh
-
-.PHONY: apps
-apps: $(APPS_BINS)
-
-
-.PHONY: $(BUILT_ROMIMAGE)
-$(BUILT_ROMIMAGE):
-	cd $(CB030); ../make.sh clean
-	cd $(CB030); ../make.sh
-
-$(MAME_ROMIMAGE): $(BUILT_ROMIMAGE)
-	mkdir -p $(MAME_ROMS)
-	cp $(BUILT_ROMIMAGE) $(MAME_ROMIMAGE)
-
-.PHONY: romimage
-romimage: $(BUILT_ROMIMAGE) $(MAME_ROMIMAGE)
-
 .PHONY: mame
 mame: 
 	cd mame; make $(MAME_ALL_OPTS)
@@ -80,8 +49,3 @@ run-term:
 .PHONY: listen-term
 listen-term:
 	while true; do stty raw -echo; nc -l 6969; done
-
-.PHONY: make-cfcard
-make-cfcard:
-	dd if=/dev/zero of=mame/cfcard.hd bs=1$(DD_MEGABYTE) count=5
-
