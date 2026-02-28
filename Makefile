@@ -2,7 +2,7 @@ include Makefile.conf
 
 NUM_JOBS := $(shell ./portable_nproc.sh)
 
-MAME_TARGET_OPTS := SUBTARGET=lessfake SOURCES=uilli/lessfake.cpp
+MAME_TARGET_OPTS := SUBTARGET=aesthedes2 SOURCES=claessens/aesthedes2.cpp
 MAME_OPTS := SYMBOLS=1 VERBOSE=1 REGENIE=1
 MAME_OPTS += -j$(NUM_JOBS)
 
@@ -40,12 +40,4 @@ mame:
 
 .PHONY: run
 run: 
-	cd mame; ./lessfake lessfake -window -console -debug $(MAME_DEBUGGER) -harddisk cfcard.hd
-
-.PHONY: run-term
-run-term:
-	cd mame; ./lessfake lessfake -window -console -uimodekey SPACE -log -oslog -debug $(MAME_DEBUGGER) -harddisk cfcard.hd -rs232_a null_modem -bitb socket.localhost:6969
-
-.PHONY: listen-term
-listen-term:
-	while true; do stty raw -echo; nc -l 6969; done
+	cd mame; ./aesthedes2 aesthedes2 -window -console -debug $(MAME_DEBUGGER)
