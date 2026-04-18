@@ -2,7 +2,14 @@ include Makefile.conf
 
 NUM_JOBS := $(shell ./portable_nproc.sh)
 
-MAME_TARGET_OPTS := SUBTARGET=aesthedes2 SOURCES=claessens/aesthedes2.cpp
+#MFR := uilli
+#NAME := another
+
+MFR := claessens
+NAME := aesthedes2
+
+
+MAME_TARGET_OPTS := SUBTARGET=$(NAME) SOURCES=$(MFR)/$(NAME).cpp
 MAME_OPTS := SYMBOLS=1 VERBOSE=1 REGENIE=1
 MAME_OPTS += -j$(NUM_JOBS)
 
@@ -40,4 +47,4 @@ mame:
 
 .PHONY: run
 run: 
-	cd mame; ./aesthedes2 aesthedes2 -window -console -debug $(MAME_DEBUGGER)
+	cd mame; ./$(NAME) $(NAME) -window -console -debug $(MAME_DEBUGGER) -rewind
