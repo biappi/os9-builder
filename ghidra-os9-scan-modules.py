@@ -1,5 +1,7 @@
-# Scan for OS-9/68k modules with CRC verification
-# @category OS-9
+# Scan for OS-9/68k modules in the "ram" fragment of the Ghidra program,
+# where the Aesthedes 2 bootloader has copied them for execution.
+# The script is written for Python 2.7, and tested for Ghidra 10.1.5.
+# Usage: copy-paste the entire script into the Ghidra Script Editor and run it.
 
 from ghidra.program.model.address import AddressSet
 
@@ -19,10 +21,9 @@ def os9_crc(addr, size):
     # The result is XORed with 0xFFFFFF and compared at the end
     return crc ^ 0xFFFFFF
 
-def run():
+def run(start_addr, end_addr):
     sync_pattern = "\x4A\xFC"
-    current_addr = toAddr(0x08010000)  # Start scanning from where modules are expected in RAM
-    limit_addr = currentProgram.getMaxAddress()
+    current_addr = start_addr
     #
     tree_manager = currentProgram.getTreeManager()
     tree = tree_manager.getRootModule("Program Tree")
@@ -31,7 +32,7 @@ def run():
         print("Could not find 'Program Tree'.")
         return
     #
-    while current_addr < limit_addr:
+    while current_addr < end_addr:
         current_addr = find(current_addr, sync_pattern)
         if current_addr is None:
             break
@@ -84,4 +85,10 @@ def run():
             print("Error at {}: {}".format(current_addr, str(e)))
             current_addr = current_addr.add(2)
 
-run()
+# only scan RAM fragment because that's where the modules will
+# be executed, unlike the EPROM at addr 0x0.
+memory = currentProgram.getMemory()
+ram_block = memory.getBlock("ram")
+start_addr = ram_block.getStart()
+end_addr = ram_block.getEnd()
+run(start_addr, end_addr)
