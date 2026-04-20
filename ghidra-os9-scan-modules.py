@@ -4,6 +4,7 @@
 # Usage: copy-paste the entire script into the Ghidra Script Editor and run it.
 
 from ghidra.program.model.address import AddressSet
+from ghidra.program.model.data import IntegerDataType
 
 def os9_crc(addr, size):
     # OS-9/68k 24-bit CRC calculation
@@ -27,6 +28,7 @@ def run(start_addr, end_addr):
     #
     tree_manager = currentProgram.getTreeManager()
     tree = tree_manager.getRootModule("Program Tree")
+    listing = currentProgram.getListing()
     #
     if not tree:
         print("Could not find 'Program Tree'.")
@@ -78,6 +80,18 @@ def run(start_addr, end_addr):
                 tree.createFragment(mod_name).move(new_set.minAddress, new_set.maxAddress)
             else:
                 fragment.move(new_set.minAddress, new_set.maxAddress)
+            #
+            # Set datatype and label for the name_ptr_offset field at offset 0x0C
+            uint32_type = IntegerDataType.dataType
+            name_ptr_addr = current_addr.add(0x0C)
+            # If there is data already, clear it before creating new data
+            existing_data = listing.getDataAt(name_ptr_addr)
+            if existing_data:
+                listing.clearCodeUnits(name_ptr_addr, name_ptr_addr, False)
+            listing.createData(name_ptr_addr, uint32_type)
+            #
+            label_name = "{}::os9::hdr::M$Name".format(mod_name)
+            createLabel(name_ptr_addr, label_name, True)
             #
             current_addr = current_addr.add(mod_size)
             #
