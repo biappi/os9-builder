@@ -22,22 +22,15 @@ def os9_crc(addr, size):
     # The result is XORed with 0xFFFFFF and compared at the end
     return crc ^ 0xFFFFFF
 
-def run(start_addr, end_addr):
+
+def find_modules(start_addr):
     sync_pattern = "\x4A\xFC"
     current_addr = start_addr
     #
-    tree_manager = currentProgram.getTreeManager()
-    tree = tree_manager.getRootModule("Program Tree")
-    listing = currentProgram.getListing()
-    #
-    if not tree:
-        print("Could not find 'Program Tree'.")
-        return
-    #
-    while current_addr < end_addr:
+    while True:
         current_addr = find(current_addr, sync_pattern)
         if current_addr is None:
-            break
+            return
         #
         try:
             # Offset 0x04: Module Size (4 bytes)
@@ -58,46 +51,67 @@ def run(start_addr, end_addr):
                 continue
             #
             # If we reach here, it's a valid module
-            name_ptr_offset = getInt(current_addr.add(0x0C))
-            name_addr = current_addr.add(name_ptr_offset)
-            #
-            mod_name = ""
-            i = 0
-            while i < 32:
-                char = getByte(name_addr.add(i)) & 0xFF
-                if char == 0 or char == 0x0D: break
-                mod_name += chr(char)
-                i += 1
-            #
-            if not mod_name:
-                mod_name = "Module_" + str(current_addr)
-            #
-            print("Verified Module: {} at {} (Size: {} bytes)".format(mod_name, current_addr, mod_size))
-            #
-            new_set = AddressSet(current_addr, current_addr.add(mod_size - 1))
-            fragment = tree_manager.getFragment("Program Tree", mod_name)
-            if fragment is None:
-                tree.createFragment(mod_name).move(new_set.minAddress, new_set.maxAddress)
-            else:
-                fragment.move(new_set.minAddress, new_set.maxAddress)
-            #
-            # Set datatype and label for the name_ptr_offset field at offset 0x0C
-            uint32_type = IntegerDataType.dataType
-            name_ptr_addr = current_addr.add(0x0C)
-            # If there is data already, clear it before creating new data
-            existing_data = listing.getDataAt(name_ptr_addr)
-            if existing_data:
-                listing.clearCodeUnits(name_ptr_addr, name_ptr_addr, False)
-            listing.createData(name_ptr_addr, uint32_type)
-            #
-            label_name = "{}::os9::hdr::M$Name".format(mod_name)
-            createLabel(name_ptr_addr, label_name, True)
-            #
+            yield current_addr, mod_size
             current_addr = current_addr.add(mod_size)
-            #
         except Exception as e:
             print("Error at {}: {}".format(current_addr, str(e)))
-            current_addr = current_addr.add(2)
+
+
+def get_module_name(current_addr):
+    name_ptr_offset = getInt(current_addr.add(0x0C))
+    name_addr = current_addr.add(name_ptr_offset)
+    #
+    mod_name = ""
+    i = 0
+    while i < 32:
+        char = getByte(name_addr.add(i)) & 0xFF
+        if char == 0 or char == 0x0D: break
+        mod_name += chr(char)
+        i += 1
+    #
+    if not mod_name:
+        mod_name = "Module_" + str(current_addr)
+    #
+    return mod_name
+
+
+def add_fragment(mod_name, current_addr, mod_size):
+    tree_manager = currentProgram.getTreeManager()
+    tree = tree_manager.getRootModule("Program Tree")
+    if not tree:
+        raise Exception("Could not find 'Program Tree'.")
+    #
+    new_set = AddressSet(current_addr, current_addr.add(mod_size - 1))
+    fragment = tree_manager.getFragment("Program Tree", mod_name)
+    if fragment is None:
+        tree.createFragment(mod_name).move(new_set.minAddress, new_set.maxAddress)
+    else:
+        fragment.move(new_set.minAddress, new_set.maxAddress)
+
+
+def add_label_and_datatype_for_module_name(current_addr, mod_name):
+    listing = currentProgram.getListing()
+    #
+    # Set datatype and label for the name_ptr_offset field at offset 0x0C
+    uint32_type = IntegerDataType.dataType
+    name_ptr_addr = current_addr.add(0x0C)
+    # If there is data already, clear it before creating new data
+    existing_data = listing.getDataAt(name_ptr_addr)
+    if existing_data:
+        listing.clearCodeUnits(name_ptr_addr, name_ptr_addr, False)
+    listing.createData(name_ptr_addr, uint32_type)
+    #
+    label_name = "{}::os9::hdr::M$Name".format(mod_name)
+    createLabel(name_ptr_addr, label_name, True)
+
+
+def run(start_addr, end_addr):
+    for module_addr, module_size in find_modules(start_addr):
+        module_name = get_module_name(module_addr)
+        print("Found module '{}' at {}".format(module_name, module_addr))
+        add_fragment(module_name, module_addr, module_size)
+        add_label_and_datatype_for_module_name(module_addr, module_name)
+
 
 # only scan RAM fragment because that's where the modules will
 # be executed, unlike the EPROM at addr 0x0.
