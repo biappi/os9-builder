@@ -108,15 +108,19 @@ def create_label_with_namespaces(label, address):
     return symbol_table.createLabel(address, parts[-1], current_namespace, SourceType.USER_DEFINED)  # Create the label in the final namespace
 
 
-def add_label_and_datatype_at_module_offset(mod_name, mod_addr, offset, label, datatype):
+def add_datatype(addr, datatype):
     listing = currentProgram.getListing()
-    target_addr = mod_addr.add(offset)
     # If there is data already, clear it before creating new data
-    existing_data = listing.getDataAt(target_addr)
+    existing_data = listing.getDataAt(addr)
     if existing_data:
-        listing.clearCodeUnits(target_addr, target_addr, False)
-    listing.createData(target_addr, datatype)
+        listing.clearCodeUnits(addr, addr, False)
+    listing.createData(addr, datatype)
+
+
+def add_label_and_datatype_at_module_offset(mod_addr, offset, label, datatype):
+    target_addr = mod_addr.add(offset)
     create_label_with_namespaces(label, target_addr)
+    add_datatype(target_addr, datatype)
 
 
 module_fields = [
@@ -139,7 +143,7 @@ def run(start_addr, end_addr):
         print("Found module '{}' at {}".format(module_name, module_addr))
         add_fragment(module_name, module_addr, module_size)
         for field_name, field_offset, field_type in module_fields:
-            add_label_and_datatype_at_module_offset(module_name, module_addr, field_offset,
+            add_label_and_datatype_at_module_offset(module_addr, field_offset,
                                                     "{}::os9::hdr::{}".format(module_name, field_name),
                                                     field_type)
 
