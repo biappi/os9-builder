@@ -158,6 +158,10 @@ def run(start_addr, end_addr):
             add_label_and_datatype_at_module_offset(module_addr, 0x30, 
                                                     "{}::os9::hdr::M$Exec".format(module_name), 
                                                     UnsignedIntegerDataType.dataType)
+            entry_point_offset_ptr = module_addr.add(0x30)  # Entry point offset in the header
+            entry_point_offset = getInt(entry_point_offset_ptr)
+            entry_point = module_addr.add(entry_point_offset)
+            create_label_with_namespaces("{}::os9::entry".format(module_name), entry_point)
 
 
 # only scan RAM fragment because that's where the modules will
