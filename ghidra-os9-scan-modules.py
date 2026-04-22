@@ -4,7 +4,7 @@
 # Usage: copy-paste the entire script into the Ghidra Script Editor and run it.
 
 from ghidra.program.model.address import AddressSet
-from ghidra.program.model.data import IntegerDataType
+from ghidra.program.model.data import UnsignedIntegerDataType, UnsignedShortDataType, UnsignedCharDataType
 from ghidra.program.model.symbol import SourceType
 
 def os9_crc(addr, size):
@@ -119,10 +119,18 @@ def add_label_and_datatype_at_module_offset(mod_name, mod_addr, offset, label, d
     create_label_with_namespaces(label, target_addr)
 
 
-def add_label_and_datatype_for_module_name(mod_addr, mod_name):
-    add_label_and_datatype_at_module_offset(mod_name, mod_addr, 0x0C, 
-                                            "{}::os9::hdr::M$Name".format(mod_name), 
-                                            IntegerDataType.dataType)
+module_fields = [
+    ("M$ID", 0x00, UnsignedShortDataType.dataType),
+    ("M$SysRev", 0x02, UnsignedShortDataType.dataType),
+    ("M$Size", 0x04, UnsignedIntegerDataType.dataType),
+    ("M$Owner", 0x08, UnsignedIntegerDataType.dataType),
+    ("M$Name", 0x0C, UnsignedIntegerDataType.dataType),
+    ("M$Accs", 0x10, UnsignedShortDataType.dataType),
+    ("M$Type", 0x12, UnsignedCharDataType.dataType),
+    ("M$Lang", 0x13, UnsignedCharDataType.dataType),
+    ("M$Attr", 0x14, UnsignedCharDataType.dataType),
+    ("M$Revs", 0x15, UnsignedCharDataType.dataType),
+]
 
 
 def run(start_addr, end_addr):
@@ -130,7 +138,10 @@ def run(start_addr, end_addr):
         module_name = get_module_name(module_addr)
         print("Found module '{}' at {}".format(module_name, module_addr))
         add_fragment(module_name, module_addr, module_size)
-        add_label_and_datatype_for_module_name(module_addr, module_name)
+        for field_name, field_offset, field_type in module_fields:
+            add_label_and_datatype_at_module_offset(module_name, module_addr, field_offset,
+                                                    "{}::os9::hdr::{}".format(module_name, field_name),
+                                                    field_type)
 
 
 # only scan RAM fragment because that's where the modules will
