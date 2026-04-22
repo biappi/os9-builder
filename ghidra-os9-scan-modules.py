@@ -146,11 +146,18 @@ def run(start_addr, end_addr):
             add_label_and_datatype_at_module_offset(module_addr, field_offset,
                                                     "{}::os9::hdr::{}".format(module_name, field_name),
                                                     field_type)
-        
+        #
         name_offset = getInt(module_addr.add(0x0C))
         name_addr = module_addr.add(name_offset)
         add_datatype(name_addr, TerminatedStringDataType.dataType)
         create_label_with_namespaces("{}::os9::name".format(module_name), name_addr)
+        #
+        module_type = getByte(module_addr.add(0x12)) & 0xFF
+        if module_type == 0x01:
+            # This is a code module; create a function at the entry point
+            add_label_and_datatype_at_module_offset(module_addr, 0x30, 
+                                                    "{}::os9::hdr::M$Exec".format(module_name), 
+                                                    UnsignedIntegerDataType.dataType)
 
 
 # only scan RAM fragment because that's where the modules will
