@@ -108,20 +108,21 @@ def create_label_with_namespaces(label, address):
     return symbol_table.createLabel(address, parts[-1], current_namespace, SourceType.USER_DEFINED)  # Create the label in the final namespace
 
 
-def add_label_and_datatype_for_module_name(current_addr, mod_name):
+def add_label_and_datatype_at_module_offset(mod_name, mod_addr, offset, label, datatype):
     listing = currentProgram.getListing()
-    #
-    # Set datatype and label for the name_ptr_offset field at offset 0x0C
-    uint32_type = IntegerDataType.dataType
-    name_ptr_addr = current_addr.add(0x0C)
+    target_addr = mod_addr.add(offset)
     # If there is data already, clear it before creating new data
-    existing_data = listing.getDataAt(name_ptr_addr)
+    existing_data = listing.getDataAt(target_addr)
     if existing_data:
-        listing.clearCodeUnits(name_ptr_addr, name_ptr_addr, False)
-    listing.createData(name_ptr_addr, uint32_type)
-    #
-    label_name = "{}::os9::hdr::M$Name".format(mod_name)
-    create_label_with_namespaces(label_name, name_ptr_addr)
+        listing.clearCodeUnits(target_addr, target_addr, False)
+    listing.createData(target_addr, datatype)
+    create_label_with_namespaces(label, target_addr)
+
+
+def add_label_and_datatype_for_module_name(mod_addr, mod_name):
+    add_label_and_datatype_at_module_offset(mod_name, mod_addr, 0x0C, 
+                                            "{}::os9::hdr::M$Name".format(mod_name), 
+                                            IntegerDataType.dataType)
 
 
 def run(start_addr, end_addr):
