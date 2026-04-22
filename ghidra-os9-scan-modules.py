@@ -4,7 +4,7 @@
 # Usage: copy-paste the entire script into the Ghidra Script Editor and run it.
 
 from ghidra.program.model.address import AddressSet
-from ghidra.program.model.data import UnsignedIntegerDataType, UnsignedShortDataType, UnsignedCharDataType
+from ghidra.program.model.data import UnsignedIntegerDataType, UnsignedShortDataType, UnsignedCharDataType, TerminatedStringDataType
 from ghidra.program.model.symbol import SourceType
 
 def os9_crc(addr, size):
@@ -146,6 +146,11 @@ def run(start_addr, end_addr):
             add_label_and_datatype_at_module_offset(module_addr, field_offset,
                                                     "{}::os9::hdr::{}".format(module_name, field_name),
                                                     field_type)
+        
+        name_offset = getInt(module_addr.add(0x0C))
+        name_addr = module_addr.add(name_offset)
+        add_datatype(name_addr, TerminatedStringDataType.dataType)
+        create_label_with_namespaces("{}::os9::name".format(module_name), name_addr)
 
 
 # only scan RAM fragment because that's where the modules will
