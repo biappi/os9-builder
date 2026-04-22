@@ -5,6 +5,7 @@
 
 from ghidra.program.model.address import AddressSet
 from ghidra.program.model.data import IntegerDataType
+from ghidra.program.model.symbol import SourceType
 
 def os9_crc(addr, size):
     # OS-9/68k 24-bit CRC calculation
@@ -89,6 +90,24 @@ def add_fragment(mod_name, current_addr, mod_size):
         fragment.move(new_set.minAddress, new_set.maxAddress)
 
 
+def create_label_with_namespaces(label, address):
+    # Create namespaces for a label with '::' separators, if they don't exist
+    parts = label.split("::")
+    if len(parts) < 2:
+        return None  # No namespaces needed
+    #
+    symbol_table = currentProgram.getSymbolTable()
+    #
+    current_namespace = None
+    for part in parts[:-1]:  # All but the last part are namespaces
+        if symbol_table.getNamespace(part, current_namespace) is not None:
+            current_namespace = symbol_table.getNamespace(part, current_namespace)
+        else:
+            current_namespace = symbol_table.createNameSpace(current_namespace, part, SourceType.USER_DEFINED)
+    #
+    return symbol_table.createLabel(address, parts[-1], current_namespace, SourceType.USER_DEFINED)  # Create the label in the final namespace
+
+
 def add_label_and_datatype_for_module_name(current_addr, mod_name):
     listing = currentProgram.getListing()
     #
@@ -102,7 +121,7 @@ def add_label_and_datatype_for_module_name(current_addr, mod_name):
     listing.createData(name_ptr_addr, uint32_type)
     #
     label_name = "{}::os9::hdr::M$Name".format(mod_name)
-    createLabel(name_ptr_addr, label_name, True)
+    create_label_with_namespaces(label_name, name_ptr_addr)
 
 
 def run(start_addr, end_addr):
