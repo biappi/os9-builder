@@ -1,9 +1,8 @@
 # @category: OS-9
 # @author: Gemini
-from ghidra.program.model.symbol import SourceType
+from ghidra.program.model.symbol import SourceType, RefType
 from ghidra.program.model.listing import ParameterImpl, FlowOverride
 from ghidra.program.model.data import LongDataType, WordDataType, PointerDataType
-from ghidra.program.model.symbol import RefType
 
 class OS9MappingError(Exception):
     """Custom exception for OS-9 script failures."""
@@ -64,29 +63,69 @@ def get_or_create_vfunc(name, syscall_id):
         
     return func
 
+
 def process_trap_at_address(addr):
     inst = getInstructionAt(addr)
-    if not inst or "trap" not in inst.getMnemonicString().lower():
-        return
-    
+    # Extract syscall ID
     syscall_id = getShort(addr.add(2)) & 0xFFFF
     
+    # Map (Extend this dictionary as needed)
     syscall_map = {0x0009: "i_read", 0x0006: "i_exit"}
     name = syscall_map.get(syscall_id, "unknown_syscall")
     
     vfunc = get_or_create_vfunc(name, syscall_id)
     
-    # Fix local flow
+    # Fix listing: Clear word, Create word
     clearListing(addr.add(2), addr.add(3))
     createWord(addr.add(2))
     
+    # Fix flow: Skip the syscall ID word
     fallthrough_addr = addr.add(4)
     inst.setFallThrough(fallthrough_addr)
+    
+    # Add XREF and Flow Override for Decompiler/Analysis
+    addInstructionXref(addr, vfunc.getEntryPoint(), 0, RefType.UNCONDITIONAL_CALL)
     inst.setFlowOverride(FlowOverride.CALL)
     
-    addInstructionXref(addr, vfunc.getEntryPoint(), 0, RefType.UNCONDITIONAL_CALL)
-    
     inst.setComment(inst.EOL_COMMENT, "os-9: " + name)
-    print("Successfully mapped trap at {} to {}".format(addr, name))
+    print("Fixed and resumed flow at {}".format(addr))
 
-process_trap_at_address(toAddr(0x0801af9c))
+
+def process_and_continue(start_addr):
+    """
+    Disassembles and fixes traps starting from start_addr until
+    the end of the flow.
+    """
+    addr = start_addr
+    
+    while addr is not None:
+        # 1. Ensure the current address is disassembled
+        print("Processing address: {}".format(addr))
+        if getInstructionAt(addr) is None:
+            disassemble(addr)
+        
+        inst = getInstructionAt(addr)
+        if not inst:
+            break
+            
+        # 2. Check if this is a trap
+        if "trap" in inst.getMnemonicString().lower():
+            # Apply your existing fix logic
+            process_trap_at_address(addr)
+            
+            # 3. Get the fallthrough address we just set (addr + 4)
+            next_addr = inst.getFallThrough()
+            
+            # 4. Kickstart disassembly at the next valid instruction
+            if next_addr:
+                disassemble(next_addr)
+                addr = next_addr
+                continue
+        
+        # Move to the next instruction in the current flow
+        addr = inst.getNext().getAddress()
+
+
+# --- Main Execution ---
+# Start from wherever your cursor is
+process_and_continue(currentAddress)
