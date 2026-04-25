@@ -2,7 +2,7 @@
 # @author: Gemini
 from ghidra.program.model.symbol import SourceType, RefType
 from ghidra.program.model.listing import ParameterImpl, FlowOverride
-from ghidra.program.model.data import UnsignedIntegerDataType, UnsignedShortDataType, PointerDataType
+from ghidra.program.model.data import UnsignedIntegerDataType, UnsignedShortDataType, PointerDataType, UnsignedCharDataType
 
 class OS9MappingError(Exception):
     """Custom exception for OS-9 script failures."""
@@ -70,7 +70,7 @@ def get_or_create_vfunc(name, syscall_id):
 
 
 syscall_map = {
-    0x0009: {
+    0x09: {
         "name": "F$Icpt",
         "params": [
             ("A0", PointerDataType(None), "signal_handler_address"),
@@ -78,15 +78,23 @@ syscall_map = {
         ],
         "return": None
     },
-    0x016: {
+    0x16: {
         "name": "F$STime",
         "params": [
             ("D0", UnsignedIntegerDataType.dataType, "current_time"),
             ("D1", UnsignedIntegerDataType.dataType, "current_date")
         ],
-        "return": ("D1", UnsignedShortDataType.dataType, "error_code")
+        "return": ("D1w", UnsignedShortDataType.dataType, "error_code")
+    },
+    0x80: {
+        "name": "I$Attach",
+        "params": [
+            ("D0b", UnsignedCharDataType.dataType, "access_mode"),
+            ("A0", PointerDataType(None).dataType, "path"),
+            ("A2", PointerDataType(None), "out_dev_table_entry_address")
+        ],
+        "return": ("D1w", UnsignedShortDataType.dataType, "error_code")
     }
-
 }
 
 def process_trap_at_address(addr):
