@@ -39,17 +39,22 @@ def get_or_create_vfunc(name, syscall_id):
         raise OS9MappingError("Could not create function '{}' at address {}".format(symbol_name, v_addr))
     
     try:
-        reg_d0 = currentProgram.getRegister("D0")
-        reg_d1 = currentProgram.getRegister("D1")
-        reg_a0 = currentProgram.getRegister("A0")
-        
+        # ret_param = ParameterImpl("status", LongDataType.dataType, reg_d1, currentProgram)
+
+        def to_parameter(register, type, name):
+            reg = currentProgram.getRegister(register)
+            if reg is None:
+                raise OS9MappingError("Register '{}' not found in program".format(register))
+            return ParameterImpl(name, type, reg, currentProgram)
+
+        syscall_info = syscall_map[syscall_id]
         params = [
-            ParameterImpl("path", WordDataType.dataType, reg_d0, currentProgram),
-            ParameterImpl("count", LongDataType.dataType, reg_d1, currentProgram),
-            ParameterImpl("buffer", PointerDataType(None), reg_a0, currentProgram)
+            to_parameter(*param_info) \
+            for param_info in syscall_info["params"]
         ]
-        ret_param = ParameterImpl("status", LongDataType.dataType, reg_d1, currentProgram)
-        
+        ret_param = None if syscall_info["return"] is None else \
+            to_parameter(*syscall_info["return"])
+
         func.updateFunction(
             None,
             ret_param,
@@ -65,7 +70,14 @@ def get_or_create_vfunc(name, syscall_id):
 
 
 syscall_map = {
-    0x0009: "F$Read",
+    0x0009: {
+        "name": "F$Icpt",
+        "params": [
+            ("A0", PointerDataType(None), "signal_handler_address"),
+            ("A6", PointerDataType(None), "data_area_base_address")
+        ],
+        "return": None
+    }
 }
 
 def process_trap_at_address(addr):
@@ -75,7 +87,7 @@ def process_trap_at_address(addr):
     
     if syscall_id not in syscall_map:
         raise OS9MappingError("Unknown syscall ID {:04x} at address {}".format(syscall_id, addr))
-    name = syscall_map[syscall_id]
+    name = syscall_map[syscall_id]["name"]
     
     vfunc = get_or_create_vfunc(name, syscall_id)
     
