@@ -70,11 +70,33 @@ def get_or_create_vfunc(name, syscall_id):
 
 
 syscall_map = {
+    0x06: {
+        "name": "F$Exit",
+        "params": [
+            ("D1w", UnsignedShortDataType.dataType, "exit_code")
+        ],
+        "return": ("D1w", UnsignedShortDataType.dataType, "error_code")
+    },
     0x09: {
         "name": "F$Icpt",
         "params": [
             ("A0", PointerDataType(None), "signal_handler_address"),
             ("A6", PointerDataType(None), "data_area_base_address")
+        ],
+        "return": None
+    },
+    0x0a: {
+        "name": "F$Sleep",
+        "params": [
+            ("D0w", UnsignedShortDataType.dataType, "ticks")
+        ],
+        "return": ("D1w", UnsignedShortDataType.dataType, "error_code")
+    },
+    0x0f: {
+        "name": "F$PErr",
+        "params": [
+            ("D0w", UnsignedShortDataType.dataType, "error_msg_path_id"),
+            ("D1w", UnsignedShortDataType.dataType, "error_code")
         ],
         "return": None
     },
@@ -86,12 +108,54 @@ syscall_map = {
         ],
         "return": ("D1w", UnsignedShortDataType.dataType, "error_code")
     },
+    0x21: {
+        "name": "F$TLink",
+        "params": [
+            ("D0w", UnsignedShortDataType.dataType, "trap_number"),
+            ("D1w", UnsignedShortDataType.dataType, "memory_override"),
+            ("A0", PointerDataType(None), "module_name"),
+            ("A1", PointerDataType(None), "out_trap_entry_point"),
+            ("A2", PointerDataType(None), "out_trap_module_base")
+        ],
+        "return": ("D1w", UnsignedShortDataType.dataType, "error_code")
+    },
+    0x52: {
+        "name": "F$SysDbg",
+        "params": [],
+        "return": ("D1w", UnsignedShortDataType.dataType, "error_code")
+    },
     0x80: {
         "name": "I$Attach",
         "params": [
             ("D0b", UnsignedCharDataType.dataType, "access_mode"),
             ("A0", PointerDataType(None).dataType, "path"),
             ("A2", PointerDataType(None), "out_dev_table_entry_address")
+        ],
+        "return": ("D1w", UnsignedShortDataType.dataType, "error_code")
+    },
+    0x86: {
+        "name": "I$ChgDir",
+        "params": [
+            ("D0b", UnsignedCharDataType.dataType, "access_mode"),
+            ("A0", PointerDataType(None).dataType, "path")
+        ],
+        "return": ("D1w", UnsignedShortDataType.dataType, "error_code")
+    },
+    0x8a: {
+        "name": "I$Write",
+        "params": [
+            ("D0w", UnsignedShortDataType.dataType, "path_id"),
+            ("D1", UnsignedIntegerDataType.dataType, "length"),
+            ("A0", PointerDataType(None).dataType, "buffer"),
+        ],
+        "return": ("D1w", UnsignedShortDataType.dataType, "error_code")
+    },
+    0x8c: {
+        "name": "I$WritLn",
+        "params": [
+            ("D0w", UnsignedShortDataType.dataType, "path_id"),
+            ("D1", UnsignedIntegerDataType.dataType, "max_length"),
+            ("A0", PointerDataType(None).dataType, "buffer"),
         ],
         "return": ("D1w", UnsignedShortDataType.dataType, "error_code")
     }
