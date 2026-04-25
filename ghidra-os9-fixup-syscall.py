@@ -2,11 +2,12 @@
 # @author: Gemini
 from ghidra.program.model.symbol import SourceType, RefType
 from ghidra.program.model.listing import ParameterImpl, FlowOverride
-from ghidra.program.model.data import LongDataType, WordDataType, PointerDataType
+from ghidra.program.model.data import UnsignedIntegerDataType, UnsignedShortDataType, PointerDataType
 
 class OS9MappingError(Exception):
     """Custom exception for OS-9 script failures."""
     pass
+
 
 def get_syscall_block():
     block_name = "Syscalls"
@@ -22,6 +23,7 @@ def get_syscall_block():
             raise OS9MappingError("Failed to create memory block at F0000000: " + str(e))
             
     return block
+
 
 def get_or_create_vfunc(name, syscall_id):
     block = get_syscall_block()
@@ -39,8 +41,6 @@ def get_or_create_vfunc(name, syscall_id):
         raise OS9MappingError("Could not create function '{}' at address {}".format(symbol_name, v_addr))
     
     try:
-        # ret_param = ParameterImpl("status", LongDataType.dataType, reg_d1, currentProgram)
-
         def to_parameter(register, type, name):
             reg = currentProgram.getRegister(register)
             if reg is None:
@@ -77,7 +77,16 @@ syscall_map = {
             ("A6", PointerDataType(None), "data_area_base_address")
         ],
         "return": None
+    },
+    0x016: {
+        "name": "F$STime",
+        "params": [
+            ("D0", UnsignedIntegerDataType.dataType, "current_time"),
+            ("D1", UnsignedIntegerDataType.dataType, "current_date")
+        ],
+        "return": ("D1", UnsignedShortDataType.dataType, "error_code")
     }
+
 }
 
 def process_trap_at_address(addr):
