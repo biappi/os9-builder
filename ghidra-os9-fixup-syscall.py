@@ -25,7 +25,7 @@ def get_syscall_block():
 
 def get_or_create_vfunc(name, syscall_id):
     block = get_syscall_block()
-    symbol_name = "os9_syscall_{:04x}_{}".format(syscall_id, name)
+    symbol_name = "os9_{}".format(name)
     
     funcs = getGlobalFunctions(symbol_name)
     if funcs:
@@ -64,14 +64,18 @@ def get_or_create_vfunc(name, syscall_id):
     return func
 
 
+syscall_map = {
+    0x0009: "F$Read",
+}
+
 def process_trap_at_address(addr):
     inst = getInstructionAt(addr)
     # Extract syscall ID
     syscall_id = getShort(addr.add(2)) & 0xFFFF
     
-    # Map (Extend this dictionary as needed)
-    syscall_map = {0x0009: "i_read", 0x0006: "i_exit"}
-    name = syscall_map.get(syscall_id, "unknown_syscall")
+    if syscall_id not in syscall_map:
+        raise OS9MappingError("Unknown syscall ID {:04x} at address {}".format(syscall_id, addr))
+    name = syscall_map[syscall_id]
     
     vfunc = get_or_create_vfunc(name, syscall_id)
     
