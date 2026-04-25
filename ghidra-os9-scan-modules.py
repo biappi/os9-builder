@@ -151,6 +151,12 @@ device_descriptor_fields = [
 ]
 
 
+def label_pointed_string(module_addr, name_offset, label):
+    name_addr = module_addr.add(name_offset)
+    add_datatype(name_addr, TerminatedStringDataType.dataType)
+    create_label_with_namespaces(label, name_addr)
+
+
 def run(start_addr, end_addr):
     for module_addr, module_size in find_modules(start_addr):
         module_name = get_module_name(module_addr)
@@ -162,9 +168,7 @@ def run(start_addr, end_addr):
                                                     field_type)
         #
         name_offset = getInt(module_addr.add(0x0C))
-        name_addr = module_addr.add(name_offset)
-        add_datatype(name_addr, TerminatedStringDataType.dataType)
-        create_label_with_namespaces("{}::os9::name".format(module_name), name_addr)
+        label_pointed_string(module_addr, name_offset, "{}::os9::name".format(module_name))
         #
         module_type = getByte(module_addr.add(0x12)) & 0xFF
         if module_type == 0x01:
