@@ -4,7 +4,7 @@
 # Usage: copy-paste the entire script into the Ghidra Script Editor and run it.
 
 from ghidra.program.model.address import AddressSet
-from ghidra.program.model.data import UnsignedIntegerDataType, UnsignedShortDataType, UnsignedCharDataType, TerminatedStringDataType
+from ghidra.program.model.data import UnsignedIntegerDataType, UnsignedShortDataType, UnsignedCharDataType, TerminatedStringDataType, PointerDataType
 from ghidra.program.model.symbol import SourceType
 
 def os9_crc(addr, size):
@@ -134,6 +134,20 @@ module_fields = [
     ("M$Lang", 0x13, UnsignedCharDataType.dataType),
     ("M$Attr", 0x14, UnsignedCharDataType.dataType),
     ("M$Revs", 0x15, UnsignedCharDataType.dataType),
+    ("M$Parity", 0x2E, UnsignedShortDataType.dataType)
+]
+
+device_descriptor_fields = [
+    ("M$Port", 0x30, PointerDataType.dataType),
+    ("M$Vector", 0x34, UnsignedCharDataType.dataType),
+    ("M$IRQLvl", 0x35, UnsignedCharDataType.dataType),
+    ("M$Prior", 0x36, UnsignedCharDataType.dataType),
+    ("M$Mode", 0x37, UnsignedCharDataType.dataType),
+    ("M$FMgr", 0x38, UnsignedShortDataType.dataType),
+    ("M$PDev", 0x3A, UnsignedShortDataType.dataType),
+    ("M$DevCon", 0x3C, UnsignedShortDataType.dataType),
+    ("M$Opt", 0x46, UnsignedShortDataType.dataType),
+    ("M$DTyp", 0x48, UnsignedCharDataType.dataType),
 ]
 
 
@@ -163,6 +177,12 @@ def run(start_addr, end_addr):
             entry_point = module_addr.add(entry_point_offset)
             createFunction(entry_point, module_name + "_exec")
             disassemble(entry_point)
+        if module_type == 0x0F:
+            # This is a device descriptor; add device-specific fields
+            for name, field_offset, field_type in device_descriptor_fields:
+                add_label_and_datatype_at_module_offset(module_addr, field_offset,
+                                                        "{}::os9::hdr::{}".format(module_name, name),
+                                                        field_type)
 
 
 # only scan RAM fragment because that's where the modules will
