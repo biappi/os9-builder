@@ -131,29 +131,8 @@ def process_and_continue(start_addr):
         
         inst = getInstructionAt(addr)
         if not inst:
-            # We found a non-instruction address. That may be before we processed/repaired the trap,
-            # Ghidra may have successfully disassembled some of the following bytes. Here's an example:
-            # 0801afa4 4e 40           trap       #0x0=>os9_F$STime                                os-9: F$STime
-            #                      -- Flow Override: CALL (FALL_THROUGH)
-            #                      -- Fallthrough Override: 0801afa8
-            # 0801afa6 00 16           dw         16h
-            #                      LAB_0801afa8                                    XREF[1]:     0801afa4  
-            # 0801afa8 4a              ??         4Ah    J
-            # 0801afa9 b9              ??         B9h
-            # 0801afaa 00 04 ff fc     ori.b      #-0x4,D4b
-            # 0801afae 67 76           beq.b      LAB_0801b026
-            # Here, 0801afa8 cannot be disassembled because "4a b9" is not a valid instruction,
-            # but "4a b9 00 04 ff fc" is. But Ghidra refuses to disassemble it because it would overlap
-            # with the following instruction at 0801afaa. So we may attempt to clear the instruction
-            # two bytes after the current address and try disassembling again. If that fails, we can
-            # just break out of the loop and let the user handle it manually, since it's likely a more
-            # complex case.
-            clearListing(addr.add(2))
-            disassemble(addr)
-            inst = getInstructionAt(addr)
-            if not inst:
-                print("Failed to disassemble at {}, stopping flow.".format(addr))
-                break
+            print("Failed to disassemble at {}, stopping flow.".format(addr))
+            break
         
         # 2. Check if this is a trap
         if "trap" in inst.getMnemonicString().lower():
@@ -165,6 +144,9 @@ def process_and_continue(start_addr):
             
             # 4. Kickstart disassembly at the next valid instruction
             if next_addr:
+                # Clear a small range ahead to ensure there are no bad instructions
+                # decoded at wrong addresses.
+                clearListing(next_addr, next_addr.add(15))
                 disassemble(next_addr)
                 addr = next_addr
                 continue
