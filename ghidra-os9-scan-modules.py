@@ -4,7 +4,7 @@
 # Usage: copy-paste the entire script into the Ghidra Script Editor and run it.
 
 from ghidra.program.model.address import AddressSet
-from ghidra.program.model.data import UnsignedIntegerDataType, UnsignedShortDataType, UnsignedCharDataType, TerminatedStringDataType, PointerDataType
+from ghidra.program.model.data import UnsignedIntegerDataType, UnsignedShortDataType, UnsignedCharDataType, TerminatedStringDataType, PointerDataType, VoidDataType
 from ghidra.program.model.symbol import SourceType
 
 def os9_crc(addr, size):
@@ -151,10 +151,15 @@ device_descriptor_fields = [
 ]
 
 
-def label_pointed_string(module_addr, name_offset, label):
+def label_pointed_data(module_addr, name_offset, label, datatype=None):
     name_addr = module_addr.add(name_offset)
-    add_datatype(name_addr, TerminatedStringDataType.dataType)
+    if datatype is not None:
+        add_datatype(name_addr, datatype)
     create_label_with_namespaces(label, name_addr)
+
+
+def label_pointed_string(module_addr, name_offset, label):
+    label_pointed_data(module_addr, name_offset, label, TerminatedStringDataType.dataType)
 
 
 def run(start_addr, end_addr):
@@ -187,6 +192,14 @@ def run(start_addr, end_addr):
                 add_label_and_datatype_at_module_offset(module_addr, field_offset,
                                                         "{}::os9::hdr::{}".format(module_name, name),
                                                         field_type)
+            # ... and the strings
+            fmgr_offset = getShort(module_addr.add(0x38))
+            label_pointed_string(module_addr, fmgr_offset, "{}::os9::file_manager".format(module_name))
+            pdev_offset = getShort(module_addr.add(0x3A))
+            label_pointed_string(module_addr, pdev_offset, "{}::os9::device_driver".format(module_name))
+            # ... and the configuration table
+            devcon_offset = getShort(module_addr.add(0x3C))
+            label_pointed_data(module_addr, devcon_offset, "{}::os9::config_table".format(module_name))
 
 
 # only scan RAM fragment because that's where the modules will
