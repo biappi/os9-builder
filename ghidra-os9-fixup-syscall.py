@@ -70,10 +70,29 @@ def get_or_create_vfunc(name, syscall_id):
 
 
 syscall_map = {
+    0x00: {
+        "name": "F$Link",
+        "params": [
+            ("D0w", UnsignedShortDataType.dataType, "module_type"),
+            ("D1w", UnsignedShortDataType.dataType, "out_module_attributes"),
+            ("A0", PointerDataType(None), "module_name"),
+            ("A1", PointerDataType(None), "out_entry_point"),
+            ("A2", PointerDataType(None), "out_base_address")
+        ],
+        "return": ("D1w", UnsignedShortDataType.dataType, "error_code")
+    },
     0x06: {
         "name": "F$Exit",
         "params": [
             ("D1w", UnsignedShortDataType.dataType, "exit_code")
+        ],
+        "return": ("D1w", UnsignedShortDataType.dataType, "error_code")
+    },
+    0x08: {
+        "name": "F$Send",
+        "params": [
+            ("D0w", UnsignedShortDataType.dataType, "destination_pid"),
+            ("D1w", UnsignedShortDataType.dataType, "signal_code"),
         ],
         "return": ("D1w", UnsignedShortDataType.dataType, "error_code")
     },
@@ -116,6 +135,26 @@ syscall_map = {
             ("A0", PointerDataType(None), "module_name"),
             ("A1", PointerDataType(None), "out_trap_entry_point"),
             ("A2", PointerDataType(None), "out_trap_module_base")
+        ],
+        "return": ("D1w", UnsignedShortDataType.dataType, "error_code")
+    },
+    0x2a: {
+        "name": "F$IRQ",
+        "params": [
+            ("D0b", UnsignedCharDataType.dataType, "vector_number"),
+            ("D1b", UnsignedCharDataType.dataType, "priority"),
+            ("A0", PointerDataType(None), "handler_address"),
+            ("A2", PointerDataType(None), "device_storage_base_address"),
+            ("A3", PointerDataType(None), "port_address")
+        ],
+        "return": ("D1w", UnsignedShortDataType.dataType, "error_code")
+    },
+    0x38: {
+        "name": "F$Move",
+        "params": [
+            ("D2", UnsignedIntegerDataType.dataType, "length"),
+            ("A0", UnsignedIntegerDataType.dataType, "source"),
+            ("A1", UnsignedIntegerDataType.dataType, "destination"),
         ],
         "return": ("D1w", UnsignedShortDataType.dataType, "error_code")
     },
