@@ -138,6 +138,20 @@ syscall_map = {
         ],
         "return": ("D1w", UnsignedShortDataType.dataType, "error_code")
     },
+    0x25: {
+        "name": "F$DatMod",
+        "params": [
+            ("D0", UnsignedIntegerDataType.dataType, "size"),
+            ("D1w", UnsignedShortDataType.dataType, "desired_attr_revision"),
+            ("D2w", UnsignedShortDataType.dataType, "desired_access_perm"),
+            ("D3w", UnsignedShortDataType.dataType, "desired_type"),
+            ("D4", UnsignedIntegerDataType.dataType, "color_type"),
+            ("A0", PointerDataType(None), "module_name"),
+            ("A1", PointerDataType(None), "out_module_data_ptr"),
+            ("A2", PointerDataType(None), "out_module_base")
+        ],
+        "return": ("D1w", UnsignedShortDataType.dataType, "error_code")        
+    },
     0x2a: {
         "name": "F$IRQ",
         "params": [
