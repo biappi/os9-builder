@@ -10,7 +10,7 @@ NAME := aesthedes2
 
 
 MAME_TARGET_OPTS := SUBTARGET=$(NAME) SOURCES=$(MFR)/$(NAME).cpp
-MAME_OPTS := SYMBOLS=1 VERBOSE=1 REGENIE=1
+MAME_OPTS := VERBOSE=1
 MAME_OPTS += -j$(NUM_JOBS)
 
 MAME_LDFLAGS_MACOS := -framework CoreHaptics -liconv -framework GameController -framework ForceFeedback -framework Carbon
