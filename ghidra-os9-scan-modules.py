@@ -6,6 +6,7 @@
 from ghidra.program.model.address import AddressSet
 from ghidra.program.model.data import UnsignedIntegerDataType, UnsignedShortDataType, UnsignedCharDataType, TerminatedStringDataType, PointerDataType, VoidDataType
 from ghidra.program.model.symbol import SourceType
+from java.lang import Long
 
 def os9_crc(addr, size):
     # OS-9/68k 24-bit CRC calculation
@@ -186,6 +187,27 @@ def run(start_addr, end_addr):
             entry_point = module_addr.add(entry_point_offset)
             createFunction(entry_point, module_name + "_exec")
             disassemble(entry_point)
+        if module_type == 0x0E:
+            # This is a device driver; the entry point is an offset table rather than code.
+            add_label_and_datatype_at_module_offset(module_addr, 0x30, 
+                                                    "{}::os9::hdr::M$Exec".format(module_name), 
+                                                    UnsignedIntegerDataType.dataType)
+            offset_table_offset_ptr = module_addr.add(0x30)  # Entry point offset in the header
+            offset_table_offset = getInt(offset_table_offset_ptr)
+            offset_table_def = ["Init", "Read", "Write", "GetStat", "SetStat", "TrmNat", "Error"]
+            offset_table = {}
+            for i, id in enumerate(offset_table_def):
+                item_offset = offset_table_offset + (2 * i)
+                entry_point_offset = getShort(module_addr.add(item_offset))
+                entry_point = module_addr.add(entry_point_offset) if entry_point_offset != 0 else None
+                offset_table[id] = {"offset": item_offset, "entry_point": entry_point}
+            for id, entry_data in offset_table.items():
+                add_label_and_datatype_at_module_offset(module_addr, entry_data["offset"],
+                                                        "{}::os9::hdr::driver::{}".format(module_name, id),
+                                                        UnsignedShortDataType.dataType)
+                if entry_data["entry_point"] is not None:
+                   createFunction(entry_data["entry_point"], "{}_dev{}".format(module_name, id))
+                   disassemble(entry_data["entry_point"])
         if module_type == 0x0F:
             # This is a device descriptor; add device-specific fields
             for name, field_offset, field_type in device_descriptor_fields:
