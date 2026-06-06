@@ -275,8 +275,8 @@ def process_and_continue(start_addr):
             print("Failed to disassemble at {}, stopping flow.".format(addr))
             break
         
-        # 2. Check if this is a trap
-        if "trap" in inst.getMnemonicString().lower():
+        # 2. Check if this is a trap for OS-9 syscall (trap code 0)
+        if "trap" in inst.getMnemonicString().lower() and getByte(addr.add(1)) == 0x40:
             # Apply your existing fix logic
             process_trap_at_address(addr)
             
