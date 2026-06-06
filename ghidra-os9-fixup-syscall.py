@@ -152,6 +152,22 @@ syscall_map = {
         ],
         "return": ("D1w", UnsignedShortDataType.dataType, "error_code")        
     },
+    0x28: {
+        "name": "F$SRqMem",
+        "params": [
+            ("D0", UnsignedIntegerDataType.dataType, "size"),
+            ("A2", PointerDataType(None), "out_address"),
+        ],
+        "return": ("D1w", UnsignedShortDataType.dataType, "error_code")
+    },
+    0x29: {
+        "name": "F$SRtMem",
+        "params": [
+            ("D0", UnsignedIntegerDataType.dataType, "size"),
+            ("A2", PointerDataType(None), "address"),
+        ],
+        "return": ("D1w", UnsignedShortDataType.dataType, "error_code")
+    },
     0x2a: {
         "name": "F$IRQ",
         "params": [
