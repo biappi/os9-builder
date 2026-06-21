@@ -47,4 +47,4 @@ mame:
 
 .PHONY: run
 run: 
-	cd mame; ./$(NAME) $(NAME) -window -console -debug $(MAME_DEBUGGER) -rewind
+	cd mame; ./$(NAME) $(NAME) -window -console -debug $(MAME_DEBUGGER) -oslog -log -rewind
