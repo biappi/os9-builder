@@ -41,10 +41,12 @@ MAME_ALL_OPTS += $(MAME_TARGET_OPTS)
 MAME_ALL_OPTS += $(MAME_CONF_OPTS)
 MAME_ALL_OPTS += $(MAME_OPTS)
 
+HDIMAGES_DIR = mame/roms/$(NAME)
+
 .PHONY: mame
 mame: 
 	cd mame; make $(MAME_ALL_OPTS)
 
 .PHONY: run
 run: 
-	cd mame; ./$(NAME) $(NAME) -window -console -debug $(MAME_DEBUGGER) -oslog -log -rewind
+	cd mame; ./$(NAME) $(NAME) -window -console -debug $(MAME_DEBUGGER) -oslog -log -rewind -harddisk ../$(HDIMAGES_DIR)/harddisk_504.bin
