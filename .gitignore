@@ -1,3 +1,4 @@
 Makefile.conf
 .vscode
 run-emu
+mame.log
