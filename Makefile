@@ -55,6 +55,6 @@ run-emu:
 	echo "#!/bin/sh" > $@
 	echo "set -e" >> $@
 	echo "cd mame" >> $@
-	echo "./$(NAME) $(NAME) -window -console -debug $(MAME_DEBUGGER) -oslog -log -rewind -harddisk ../$(HDIMAGES_DIR)/harddisk_504.bin \"\$$@\"" >> $@
+	echo "./$(NAME) $(NAME) -window -console -debug $(MAME_DEBUGGER) -oslog -log -rewind -harddisk ../$(HDIMAGES_DIR)/harddisk_504.bin \"\$$@\" 2>&1 | tee ../mame.log" >> $@
 
 	chmod +x $@
