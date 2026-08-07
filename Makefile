@@ -49,12 +49,21 @@ mame:
 
 .PHONY: run
 run: 
-	cd mame; ./$(NAME) $(NAME) -window -console -debug $(MAME_DEBUGGER) -oslog -log -rewind -harddisk ../$(HDIMAGES_DIR)/harddisk_504.bin
+	cd mame; ./$(NAME) $(NAME) -window -console \
+	-debug $(MAME_DEBUGGER) -oslog -log \
+	-rewind \
+	-harddisk1 ../$(HDIMAGES_DIR)/harddisk_302.bin \
+	-harddisk2 ../$(HDIMAGES_DIR)/harddisk_504.bin
 
 run-emu:
 	echo "#!/bin/sh" > $@
 	echo "set -e" >> $@
 	echo "cd mame" >> $@
-	echo "./$(NAME) $(NAME) -window -console -debug $(MAME_DEBUGGER) -oslog -log -rewind -harddisk ../$(HDIMAGES_DIR)/harddisk_504.bin \"\$$@\" 2>&1 | tee ../mame.log" >> $@
+	echo "./$(NAME) $(NAME) -window -console \
+	-debug $(MAME_DEBUGGER) -oslog -log \
+	-rewind \
+	-harddisk1 ../$(HDIMAGES_DIR)/harddisk_302.bin \
+	-harddisk2 ../$(HDIMAGES_DIR)/harddisk_504.bin \
+	\"\$$@\" 2>&1 | tee ../mame.log" >> $@
 
 	chmod +x $@
