@@ -81,6 +81,13 @@ syscall_map = {
         ],
         "return": ("D1w", UnsignedShortDataType.dataType, "error_code")
     },
+    0x02: {
+        "name": "F$UnLink",
+        "params": [
+            ("D0", UnsignedIntegerDataType.dataType, "module_header_pointer")
+        ],
+        "return": ("D1w", UnsignedShortDataType.dataType, "error_code")
+    },
     0x06: {
         "name": "F$Exit",
         "params": [
@@ -126,6 +133,17 @@ syscall_map = {
             ("D1", UnsignedIntegerDataType.dataType, "current_date")
         ],
         "return": ("D1w", UnsignedShortDataType.dataType, "error_code")
+    },
+    0x1e: {
+        "name": "F$Alarm",
+        "params": [
+            ("D0", UnsignedIntegerDataType.dataType, "alarm_id"),
+            ("D1w", UnsignedShortDataType.dataType, "alarm_function_code"),
+            ("D2", UnsignedIntegerDataType.dataType, "signal_code"),
+            ("D3", UnsignedIntegerDataType.dataType, "time_interval"),
+            ("D4", UnsignedIntegerDataType.dataType, "date")
+        ],
+        "return": ("D0", UnsignedIntegerDataType.dataType, "alarm_id")
     },
     0x21: {
         "name": "F$TLink",
@@ -192,6 +210,17 @@ syscall_map = {
         "name": "F$SysDbg",
         "params": [],
         "return": ("D1w", UnsignedShortDataType.dataType, "error_code")
+    },
+    0x53: {
+        "name": "F$Event",
+        "params": [
+            ("D1w", UnsignedShortDataType.dataType, "event_function_code"),
+            ("D0", UnsignedIntegerDataType.dataType, "arg0_or_id"),
+            ("D2", UnsignedIntegerDataType.dataType, "arg1"),
+            ("D3", UnsignedIntegerDataType.dataType, "arg2"),
+            ("A0", PointerDataType(None), "name_or_value_pointer")
+        ],
+        "return": ("D0", UnsignedIntegerDataType.dataType, "result_or_error_code")
     },
     0x80: {
         "name": "I$Attach",
